@@ -289,7 +289,10 @@
   .btn:hover:not(:disabled) .seta{transform:translateX(3px)}
   .btn:disabled{opacity:.32;cursor:not-allowed}
   .btn.verde{background:var(--green);color:#F4F0E6}
-  .voltar{background:none;border:none;font:inherit;font-size:14.5px;color:rgba(244,240,230,.7);
+  /* Cor pensada para o fundo escuro da página, mas este botão vive dentro
+     do card claro — com a cor antiga (creme sobre creme) ele ficava
+     praticamente invisível em toda a jornada, não só aqui. */
+  .voltar{background:none;border:none;font:inherit;font-size:14.5px;color:var(--ink-soft);
     cursor:pointer;padding:6px 2px;transition:color .16s}
   .voltar:hover{color:var(--ink)}
   .btn-linha{background:#fff;color:var(--ink);border:1px solid var(--line);font-size:15px;padding:14px 24px}
@@ -1345,19 +1348,19 @@ function perguntaBonus(s){
   const r=A.respostas.bonus||{};
   const box=el('div');
   box.style.cssText='background:rgba(227,190,124,.1);border:1px solid rgba(227,190,124,.3);border-radius:16px;padding:24px;text-align:center;margin-top:20px';
-  const btns=el('div'); btns.style.cssText='display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:4px';
-  const bSim=el('button','btn','Quero sim! →');
-  bSim.style.background='var(--stamp-amber)'; bSim.style.color='#141830';
-  const bNao=el('button','btn','Não, obrigado');
-  bNao.style.cssText='background:transparent;border:1px solid rgba(244,240,230,.25);color:rgba(244,240,230,.6)';
-  if(r.value==='Quero sim!'){ bSim.style.opacity='1'; bNao.style.opacity='.45'; }
-  if(r.value==='Não, obrigado'){ bNao.style.opacity='1'; bSim.style.opacity='.45'; }
+  /* Centralizado com flex de verdade (não depende do texto-align do box),
+     então continua centralizado em qualquer largura de tela. */
+  const btns=el('div'); btns.style.cssText='display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:4px';
+  const bSim=el('button','btn','Quero sim!'+seta);
+  const bNao=el('button','btn btn-linha','Não, obrigado');
+  if(r.value==='Quero sim!'){ bSim.style.opacity='1'; bNao.style.opacity='.6'; }
+  if(r.value==='Não, obrigado'){ bNao.style.opacity='1'; bSim.style.opacity='.6'; }
   bSim.onclick=()=>{ A.respostas.bonus={value:'Quero sim!',raw:'Quero sim!'}; ir(1); };
   bNao.onclick=()=>{ A.respostas.bonus={value:'Não, obrigado',raw:'Não, obrigado'}; ir(1); };
   btns.appendChild(bSim); btns.appendChild(bNao); box.appendChild(btns);
   app.appendChild(box);
   const vol=el('button','voltar','← Voltar'); vol.onclick=()=>ir(-1);
-  const nav=el('div','acoes'); nav.appendChild(vol); app.appendChild(nav);
+  const nav=el('div','acoes'); nav.style.justifyContent='center'; nav.appendChild(vol); app.appendChild(nav);
 }
 
 /* Nome, CPF, e-mail e WhatsApp do acompanhante numa página só — mesmo
