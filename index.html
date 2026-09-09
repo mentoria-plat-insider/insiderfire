@@ -169,6 +169,8 @@
   .perguntas-abertura p{margin:0;color:var(--ink);font-weight:600;font-size:16px;text-align:left}
   .perguntas-abertura p + p{margin-top:6px}
   .lead p{margin:0 0 14px}
+  .centro h1{text-align:center}
+  .centro .acoes{justify-content:center}
   .lead strong{color:var(--ink);font-weight:600}
 
   /* ---------- Opções ---------- */
@@ -216,6 +218,8 @@
   .opt.bloqueada{opacity:.4;cursor:not-allowed}
   .opt.bloqueada:hover{transform:none;box-shadow:none;border-color:var(--line-soft)}
   .opt span.txt{font-size:15.5px;line-height:1.4}
+  .opt-prefixo{color:var(--ink-soft);font-weight:400}
+  .opt span.txt strong{color:var(--ink);font-weight:700}
 
   /* caixa de seleção própria: mantém o campo nativo, só troca a aparência */
   .opt input{appearance:none;-webkit-appearance:none;margin:1px 0 0;flex:0 0 auto;
@@ -274,7 +278,7 @@
   .btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 24px -12px rgba(227,190,124,.55)}
   .btn:hover:not(:disabled) .seta{transform:translateX(3px)}
   .btn:disabled{opacity:.32;cursor:not-allowed}
-  .btn.verde{background:var(--stamp-amber);color:#141830}
+  .btn.verde{background:var(--green);color:#F4F0E6}
   .voltar{background:none;border:none;font:inherit;font-size:14.5px;color:rgba(244,240,230,.7);
     cursor:pointer;padding:6px 2px;transition:color .16s}
   .voltar:hover{color:var(--ink)}
@@ -512,7 +516,7 @@
     <div class="evento-banner" id="evento-banner" style="display:none">
       <span class="eb-icone"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E3BE7C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v1a1.5 1.5 0 0 0 0 3v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1a1.5 1.5 0 0 0 0-3z"/><path d="M13 5v2m0 3v2m0 3v2" stroke-dasharray="2 2"/></svg></span>
       <span class="eb-texto">
-        <strong>IMERSÃO 100K</strong>
+        <strong>IMERSÃO FL 100K</strong>
         <em>Seu Primeiro R$ 100 mil na Internet</em>
       </span>
     </div>
@@ -530,43 +534,43 @@
 const Q = {
   /* ── EVENTO ── */
   evento:{n:1,t:'single',title:'Escolha o evento que deseja participar:',
-    hl:['evento'],
-    opts:['Imersão Lançamento Semente Goiânia — 18, 19 e 20 de Setembro/26','Imersão Lançamento Semente Uberlândia — 25, 26 e 27 de Setembro/26','Imersão Lançamento Semente Belo Horizonte — 09, 10 e 11 de Outubro/26','Imersão Lançamento Semente Porto Alegre — 16, 17 e 18 de Outubro/26','Imersão Lançamento Semente João Pessoa — 30, 31 out e 01 nov/26','Imersão Lançamento Semente São Luís — 06, 07 e 08 de Novembro/26','Imersão Lançamento Semente Brasília — 13, 14 e 15 de Novembro/26','Imersão Lançamento Semente Balneário Camboriú — 04, 05 e 06 de Dezembro/26','Imersão Lançamento Semente Campinas — 11, 12 e 13 de Dezembro/26','Imersão Lançamento Semente em 2027 — Data a confirmar'],
+    hl:['evento'],cta:'Resgatar meu ingresso',rica:true,
+    opts:['Imersão FL 100K Goiânia — 18, 19 e 20 de Setembro/26','Imersão FL 100K Uberlândia — 25, 26 e 27 de Setembro/26','Imersão FL 100K Belo Horizonte — 09, 10 e 11 de Outubro/26','Imersão FL 100K Porto Alegre — 16, 17 e 18 de Outubro/26','Imersão FL 100K João Pessoa — 30, 31 out e 01 nov/26','Imersão FL 100K São Luís — 06, 07 e 08 de Novembro/26','Imersão FL 100K Brasília — 13, 14 e 15 de Novembro/26','Imersão FL 100K Balneário Camboriú — 04, 05 e 06 de Dezembro/26','Imersão FL 100K Campinas — 11, 12 e 13 de Dezembro/26','Imersão FL 100K em 2027 — Data a confirmar'],
     balao:'Escolha a cidade e data que melhor se encaixam na sua agenda.'},
 
   /* ── BÔNUS: ACOMPANHANTE ── */
-  bonus:{n:2,t:'bonus',title:'Temos um bônus exclusivo por você estar no FIRE! 🔥',
+  bonus:{n:2,t:'bonus',title:'Temos um bônus exclusivo por você estar no FIRE!',
     hl:['bônus exclusivo'],
     help:'Você ganhou mais um ingresso para levar um convidado especial, totalmente gratuito! Quer aproveitar esse bônus?',
     balao:'Este bônus é exclusivo para participantes do Hotmart Fire 2026.'},
 
   /* ── DADOS DO ACOMPANHANTE (condicional) ── */
-  a_nome:{n:3,t:'open',short:true,title:'Nome completo do acompanhante:',ph:'Nome completo',
-    cond:'bonus',balao:'Use o nome completo como no documento de identificação.'},
-  a_cpf:{n:4,t:'open',short:true,title:'CPF do acompanhante:',ph:'000.000.000-00',
-    cond:'bonus',balao:'Necessário para emissão do ingresso do acompanhante.'},
-  a_email:{n:5,t:'open',short:true,title:'E-mail do acompanhante:',ph:'email@exemplo.com',
-    cond:'bonus',balao:'Informe o e-mail para o qual devemos enviar as informações do ingresso.'},
-  a_whats:{n:6,t:'open',short:true,title:'WhatsApp do acompanhante com DDD:',ph:'(00) 00000-0000',
-    cond:'bonus',balao:'Pode ser o mesmo WhatsApp se preferir centralizar o contato.'},
-  a_depois:{n:7,t:'single',
+  a_depois:{n:3,t:'single',cta:'Continuar',
     title:'Prefere informar os dados do acompanhante agora ou depois?',
     opts:['Informar agora','Informar depois — o time entrará em contato'],
     cond:'bonus',
-    balao:'Se não tiver os dados agora, sem problema! Nossa equipe entrará em contato.'}
+    balao:'Se não tiver os dados agora, sem problema! Nossa equipe entrará em contato para buscá-los.'},
+  a_nome:{n:4,t:'open',short:true,title:'Nome completo do acompanhante:',ph:'Nome completo',
+    cond:'bonus_agora',balao:'Use o nome completo como no documento de identificação.'},
+  a_cpf:{n:5,t:'open',short:true,title:'CPF do acompanhante:',ph:'000.000.000-00',
+    cond:'bonus_agora',balao:'Necessário para emissão do ingresso do acompanhante.'},
+  a_email:{n:6,t:'open',short:true,title:'E-mail do acompanhante:',ph:'email@exemplo.com',
+    cond:'bonus_agora',balao:'Informe o e-mail para o qual devemos enviar as informações do ingresso.'},
+  a_whats:{n:7,t:'open',short:true,title:'WhatsApp do acompanhante com DDD:',ph:'(00) 00000-0000',
+    cond:'bonus_agora',balao:'Pode ser o mesmo WhatsApp se preferir centralizar o contato.'}
 };
 
 const SCREENS = [
   {id:'abertura',kind:'intro'},
   {id:'ident',kind:'ident'},
-  {id:'inter1',kind:'interlude',
-   title:'Seus dados registrados. Agora, escolha o evento. 📅',
-   body:['Selecione a cidade e data que fazem mais sentido para você.']},
+  {id:'inter1',kind:'interlude',centro:true,cta:'Escolher a cidade',verde:true,
+   title:'Seus dados registrados. Agora, escolha o evento.',
+   body:['Selecione a cidade e a data.']},
   'evento',
-  {id:'inter2',kind:'interlude',
-   title:'Temos um bônus exclusivo para você! 🎁',
-   body:['Por você estar presente no Hotmart Fire 2026, você ganhou um ingresso extra para levar um convidado especial, totalmente gratuito.']},
-  'bonus','a_nome','a_cpf','a_email','a_whats','a_depois',
+  {id:'inter2',kind:'interlude',marco:'Bônus desbloqueado',
+   title:'Você desbloqueou um bônus exclusivo!',hl:['bônus exclusivo'],
+   body:['Só por estar no Hotmart Fire 2026, você garantiu um ingresso extra para levar alguém especial — 100% gratuito.']},
+  'bonus','a_depois','a_nome','a_cpf','a_email','a_whats',
   {id:'fim',kind:'final'}
 ];
 
@@ -574,7 +578,7 @@ const SCREENS = [
    Não mudam nenhuma pergunta, só organizam a leitura do progresso. */
 const CAPITULOS = [
   {nome:'Evento',         ids:['evento']},
-  {nome:'Bônus',          ids:['bonus','a_nome','a_cpf','a_email','a_whats','a_depois']}
+  {nome:'Bônus',          ids:['bonus','a_depois','a_nome','a_cpf','a_email','a_whats']}
 ];
 const capituloDe = id => (CAPITULOS.find(c=>c.ids.includes(id))||{}).nome || '';
 
@@ -594,6 +598,13 @@ const visible = s => {
     /* se não respondeu ainda, oculta; se respondeu 'Não', oculta */
     if(!r) return false;
     if(r.value==='Não, obrigado') return false;
+  }
+  /* dados do acompanhante: só se aceitou o bônus e escolheu informar agora */
+  if(q.cond==='bonus_agora'){
+    const rBonus=A.respostas['bonus'];
+    if(!rBonus || rBonus.value==='Não, obrigado') return false;
+    const rDepois=A.respostas['a_depois'];
+    if(!rDepois || rDepois.value!=='Informar agora') return false;
   }
   return true;
 };
@@ -780,7 +791,7 @@ function agendarBalao(texto, espera){
       balao = el('div','balao');
       document.body.appendChild(balao);
     }
-    balao.innerHTML = '<div class="titulo">✦ Uma ajudinha</div><p></p>' +
+    balao.innerHTML = '<div class="titulo">Uma ajudinha</div><p></p>' +
                       '<button class="fechar" aria-label="Fechar">×</button>';
     balao.querySelector('p').textContent = texto;
     balao.querySelector('.fechar').onclick = ()=>balao.classList.remove('ver');
@@ -858,12 +869,20 @@ function realce(txt, palavras){
   return txt;
 }
 
+/* Opções de evento: destaca cidade e data, mantendo o valor puro (o texto
+   completo continua sendo o que vai para a planilha, isto é só exibição). */
+const PREFIXO_EVENTO = 'Imersão FL 100K ';
+function formatarOpcaoRica(v){
+  if(!v.startsWith(PREFIXO_EVENTO)) return v;
+  return '<span class="opt-prefixo">'+PREFIXO_EVENTO+'</span><strong>'+v.slice(PREFIXO_EVENTO.length)+'</strong>';
+}
+
 function render(){
   esconderBalao();
   const s = norm(SCREENS[i]);
   if(s.kind==='q' && !visible(s)){ i += (dir>=0?1:-1); return render(); }
   app.innerHTML = '';
-  app.classList.remove('sai','sai-volta','entra','entra-volta','fim');
+  app.classList.remove('sai','sai-volta','entra','entra-volta','fim','centro');
   void app.offsetWidth;                        // reinicia a animação de entrada
   app.classList.add(dir>=0 ? 'entra' : 'entra-volta');
 
@@ -901,6 +920,7 @@ function render(){
   if(s.kind==='retomar')   return retomar();
   if(s.kind==='interlude') return interludio(s);
   if(s.kind==='final')     return conclusao();
+  if(s.t==='bonus')        return perguntaBonus(s);
   return pergunta(s);
 }
 
@@ -932,8 +952,8 @@ function intro(){
   /* ingresso SVG pré-renderizado */
   const wrap=el('div','ing-wrap');
   const img=document.createElement('img');
-  img.src='data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSItMTAgLTEwIDcyMCAyODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxkZWZzPgogIDxsaW5lYXJHcmFkaWVudCBpZD0iYmciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMxYTIxNTgiLz4KICAgIDxzdG9wIG9mZnNldD0iNTUlIiBzdG9wLWNvbG9yPSIjMWUyYTZlIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxODFmNGUiLz4KICA8L2xpbmVhckdyYWRpZW50PgogIDxsaW5lYXJHcmFkaWVudCBpZD0iYmcyIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMCI+CiAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWMyNDYwIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxODFmNGUiLz4KICA8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cgo8cGF0aCBkPSJNMTYgMTZMMTYuMCAxNi4wIFEyNC4xIDI0LjAgMzIuMiAxNi4wIFE0MC4zIDI0LjAgNDguNCAxNi4wIFE1Ni41IDI0LjAgNjQuNiAxNi4wIFE3Mi43IDI0LjAgODAuOCAxNi4wIFE4OC44IDI0LjAgOTYuOSAxNi4wIFExMDUuMCAyNC4wIDExMy4xIDE2LjAgUTEyMS4yIDI0LjAgMTI5LjMgMTYuMCBRMTM3LjQgMjQuMCAxNDUuNSAxNi4wIFExNTMuNiAyNC4wIDE2MS43IDE2LjAgUTE2OS44IDI0LjAgMTc3LjkgMTYuMCBRMTg2LjAgMjQuMCAxOTQuMSAxNi4wIFEyMDIuMiAyNC4wIDIxMC4yIDE2LjAgUTIxOC4zIDI0LjAgMjI2LjQgMTYuMCBRMjM0LjUgMjQuMCAyNDIuNiAxNi4wIFEyNTAuNyAyNC4wIDI1OC44IDE2LjAgUTI2Ni45IDI0LjAgMjc1LjAgMTYuMCBRMjgzLjEgMjQuMCAyOTEuMiAxNi4wIFEyOTkuMyAyNC4wIDMwNy40IDE2LjAgUTMxNS41IDI0LjAgMzIzLjYgMTYuMCBRMzMxLjcgMjQuMCAzMzkuOCAxNi4wIFEzNDcuOCAyNC4wIDM1NS45IDE2LjAgUTM2NC4wIDI0LjAgMzcyLjEgMTYuMCBRMzgwLjIgMjQuMCAzODguMyAxNi4wIFEzOTYuNCAyNC4wIDQwNC41IDE2LjAgUTQxMi42IDI0LjAgNDIwLjcgMTYuMCBRNDI4LjggMjQuMCA0MzYuOSAxNi4wIFE0NDUuMCAyNC4wIDQ1My4xIDE2LjAgUTQ2MS4yIDI0LjAgNDY5LjIgMTYuMCBRNDc3LjMgMjQuMCA0ODUuNCAxNi4wIFE0OTMuNSAyNC4wIDUwMS42IDE2LjAgUTUwOS43IDI0LjAgNTE3LjggMTYuMCBRNTI1LjkgMjQuMCA1MzQuMCAxNi4wIEw1MzQgMTYgTDUzNCAyNDRMNTM0LjAgMjQ0LjAgUTUyNS45IDIzNi4wIDUxNy44IDI0NC4wIFE1MDkuNyAyMzYuMCA1MDEuNiAyNDQuMCBRNDkzLjUgMjM2LjAgNDg1LjQgMjQ0LjAgUTQ3Ny4zIDIzNi4wIDQ2OS4yIDI0NC4wIFE0NjEuMiAyMzYuMCA0NTMuMSAyNDQuMCBRNDQ1LjAgMjM2LjAgNDM2LjkgMjQ0LjAgUTQyOC44IDIzNi4wIDQyMC43IDI0NC4wIFE0MTIuNiAyMzYuMCA0MDQuNSAyNDQuMCBRMzk2LjQgMjM2LjAgMzg4LjMgMjQ0LjAgUTM4MC4yIDIzNi4wIDM3Mi4xIDI0NC4wIFEzNjQuMCAyMzYuMCAzNTUuOSAyNDQuMCBRMzQ3LjggMjM2LjAgMzM5LjggMjQ0LjAgUTMzMS43IDIzNi4wIDMyMy42IDI0NC4wIFEzMTUuNSAyMzYuMCAzMDcuNCAyNDQuMCBRMjk5LjMgMjM2LjAgMjkxLjIgMjQ0LjAgUTI4My4xIDIzNi4wIDI3NS4wIDI0NC4wIFEyNjYuOSAyMzYuMCAyNTguOCAyNDQuMCBRMjUwLjcgMjM2LjAgMjQyLjYgMjQ0LjAgUTIzNC41IDIzNi4wIDIyNi40IDI0NC4wIFEyMTguMyAyMzYuMCAyMTAuMiAyNDQuMCBRMjAyLjIgMjM2LjAgMTk0LjEgMjQ0LjAgUTE4Ni4wIDIzNi4wIDE3Ny45IDI0NC4wIFExNjkuOCAyMzYuMCAxNjEuNyAyNDQuMCBRMTUzLjYgMjM2LjAgMTQ1LjUgMjQ0LjAgUTEzNy40IDIzNi4wIDEyOS4zIDI0NC4wIFExMjEuMiAyMzYuMCAxMTMuMSAyNDQuMCBRMTA1LjAgMjM2LjAgOTYuOSAyNDQuMCBRODguOCAyMzYuMCA4MC44IDI0NC4wIFE3Mi43IDIzNi4wIDY0LjYgMjQ0LjAgUTU2LjUgMjM2LjAgNDguNCAyNDQuMCBRNDAuMyAyMzYuMCAzMi4yIDI0NC4wIFEyNC4xIDIzNi4wIDE2LjAgMjQ0LjAgWiIgZmlsbD0idXJsKCNiZykiIHN0cm9rZT0icmdiYSgyMjcsMTkwLDEyNCwwLjU1KSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KCjxyZWN0IHg9IjQxOCIgeT0iMzIiIHdpZHRoPSIxMDAiIGhlaWdodD0iMjYiIHJ4PSIxMyIgZmlsbD0iIzJGNkI0RiIvPgo8dGV4dCB4PSI0NjgiIHk9IjQ5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIgogIGZvbnQtZmFtaWx5PSJJbnRlcixzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iODAwIiBmb250LXNpemU9IjEwLjUiCiAgZmlsbD0id2hpdGUiIGxldHRlci1zcGFjaW5nPSIxLjMiPkNPUlRFU0lBPC90ZXh0PgoKPHBhdGggZD0iTTU2NiAxNkw1NjYuMCAxNi4wIFE1NzQuNCAyNC4wIDU4Mi45IDE2LjAgUTU5MS4zIDI0LjAgNTk5LjcgMTYuMCBRNjA4LjEgMjQuMCA2MTYuNiAxNi4wIFE2MjUuMCAyNC4wIDYzMy40IDE2LjAgUTY0MS45IDI0LjAgNjUwLjMgMTYuMCBRNjU4LjcgMjQuMCA2NjcuMSAxNi4wIFE2NzUuNiAyNC4wIDY4NC4wIDE2LjAgTDY4NCAxNiBMNjg0IDI0NEw2ODQuMCAyNDQuMCBRNjc1LjYgMjM2LjAgNjY3LjEgMjQ0LjAgUTY1OC43IDIzNi4wIDY1MC4zIDI0NC4wIFE2NDEuOSAyMzYuMCA2MzMuNCAyNDQuMCBRNjI1LjAgMjM2LjAgNjE2LjYgMjQ0LjAgUTYwOC4xIDIzNi4wIDU5OS43IDI0NC4wIFE1OTEuMyAyMzYuMCA1ODIuOSAyNDQuMCBRNTc0LjQgMjM2LjAgNTY2LjAgMjQ0LjAgTDU2NiAyNDQgWiIgZmlsbD0idXJsKCNiZzIpIiBzdHJva2U9InJnYmEoMjI3LDE5MCwxMjQsMC41NSkiIHN0cm9rZS13aWR0aD0iMS41Ii8+Cgo8bGluZSB4MT0iNTUwIiB5MT0iMjAiIHgyPSI1NTAiIHkyPSIyNDAiCiAgc3Ryb2tlPSJyZ2JhKDIyNywxOTAsMTI0LDAuNDUpIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWRhc2hhcnJheT0iNiA0Ii8+Cgo8Y2lyY2xlIGN4PSI1NTAiIGN5PSIwIiByPSIxNCIgZmlsbD0iIzE0MTgzMCIgc3Ryb2tlPSJyZ2JhKDIyNywxOTAsMTI0LDAuNSkiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjxjaXJjbGUgY3g9IjU1MCIgY3k9IjI2MCIgcj0iMTQiIGZpbGw9IiMxNDE4MzAiIHN0cm9rZT0icmdiYSgyMjcsMTkwLDEyNCwwLjUpIiBzdHJva2Utd2lkdGg9IjEuNSIvPgoKPHRleHQgeD0iMzIiIHk9IjQ2IiBmb250LWZhbWlseT0iSW50ZXIsc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjYwMCIgZm9udC1zaXplPSIxMSIKICBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuNDUpIiBsZXR0ZXItc3BhY2luZz0iMiI+SU5TSURFUiDDlyBFUklDTyBST0NIQTwvdGV4dD4KCjxsaW5lIHgxPSIzMiIgeTE9IjcyIiB4Mj0iNTE0IiB5Mj0iNzIiCiAgc3Ryb2tlPSJyZ2JhKDIyNywxOTAsMTI0LDAuMikiIHN0cm9rZS13aWR0aD0iMSIvPgoKPCEtLSBub21lIGVtIHVtYSDDum5pY2EgbGluaGEsIGRvaXMgcGVzb3MgLS0+Cjx0ZXh0IHg9IjMyIiB5PSIxMTYiIGZvbnQtZmFtaWx5PSJGcmF1bmNlcyxHZW9yZ2lhLHNlcmlmIj4KICA8dHNwYW4gZm9udC13ZWlnaHQ9IjcwMCIgZm9udC1zaXplPSIyMSIgZmlsbD0iI0Y0RjBFNiIgbGV0dGVyLXNwYWNpbmc9Ii0wLjMiPklNRVJTw4NPIDEwMEs8L3RzcGFuPgogIDx0c3BhbiBmb250LWZhbWlseT0iSW50ZXIsc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjUwMCIgZm9udC1zaXplPSIxNS41IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuNikiPiDCtyBTZXUgcHJpbWVpcm8gUiQgMTAwIG1pbCBuYSBJbnRlcm5ldDwvdHNwYW4+CjwvdGV4dD4KCjx0ZXh0IHg9IjMyIiB5PSIxNDQiIGZvbnQtZmFtaWx5PSJJbnRlcixzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIgogIGZpbGw9InJnYmEoMjQ0LDI0MCwyMzAsMC41KSI+SG90bWFydCBGaXJlIDIwMjYgIMK3ICBDb3J0ZXNpYSBFeGNsdXNpdmE8L3RleHQ+Cgo8dGV4dCB4PSIzMiIgeT0iMTc0IiBmb250LXNpemU9IjEzIiBmaWxsPSJyZ2JhKDIyNywxOTAsMTI0LDAuNikiPuKYhSAg4piFICDimIUgIOKYhSAg4piFPC90ZXh0PgoKPGNpcmNsZSBjeD0iNDgiIGN5PSIyMTgiIHI9IjUiIGZpbGw9IiMzRThDNjciLz4KPHRleHQgeD0iNjAiIHk9IjIyMiIgZm9udC1mYW1pbHk9IkludGVyLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIuNSIKICBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuNykiPkluZ3Jlc3NvIGF0aXZvIGUgdsOhbGlkbzwvdGV4dD4KCjx0ZXh0IHg9IjUyMCIgeT0iMjA2IiB0ZXh0LWFuY2hvcj0iZW5kIgogIGZvbnQtZmFtaWx5PSJGcmF1bmNlcyxHZW9yZ2lhLHNlcmlmIiBmb250LXdlaWdodD0iNzAwIiBmb250LXNpemU9IjIyIiBmaWxsPSIjRTNCRTdDIj4xMDAlIGdyYXR1aXRvPC90ZXh0Pgo8dGV4dCB4PSI1MjAiIHk9IjIyNiIgdGV4dC1hbmNob3I9ImVuZCIKICBmb250LWZhbWlseT0iSW50ZXIsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgZmlsbD0icmdiYSgyNDQsMjQwLDIzMCwwLjUpIj5WYWxvciBkZSBtZXJjYWRvOiBSJCA0OTc8L3RleHQ+Cgo8dGV4dCB4PSI2MjUiIHk9IjQyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIgogIGZvbnQtZmFtaWx5PSJJbnRlcixzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iNzAwIiBmb250LXNpemU9IjExIgogIGZpbGw9InJnYmEoMjQ0LDI0MCwyMzAsMC41KSIgbGV0dGVyLXNwYWNpbmc9IjIiPkNPUlRFU0lBPC90ZXh0PgoKPHJlY3QgeD0iNTkzLjAiIHk9IjkyIiB3aWR0aD0iMy43IiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNTk4LjYiIHk9IjkyIiB3aWR0aD0iMi4zIiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjAyLjciIHk9IjkyIiB3aWR0aD0iMy43IiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjA5LjciIHk9IjkyIiB3aWR0aD0iMC45IiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjEzLjkiIHk9IjkyIiB3aWR0aD0iMC45IiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjE5LjQiIHk9IjkyIiB3aWR0aD0iMi4zIiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjIzLjYiIHk9IjkyIiB3aWR0aD0iMi4zIiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjI3LjgiIHk9IjkyIiB3aWR0aD0iMy43IiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjMzLjMiIHk9IjkyIiB3aWR0aD0iMi4zIiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjQwLjMiIHk9IjkyIiB3aWR0aD0iMC45IiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjQ0LjUiIHk9IjkyIiB3aWR0aD0iMC45IiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjUwLjAiIHk9IjkyIiB3aWR0aD0iMi4zIiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjU0LjIiIHk9IjkyIiB3aWR0aD0iMi4zIiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+Cgo8dGV4dCB4PSI2MjUiIHk9IjE3OCIgdGV4dC1hbmNob3I9Im1pZGRsZSIKICBmb250LWZhbWlseT0iSUJNIFBsZXggTW9ubyxtb25vc3BhY2UiIGZvbnQtc2l6ZT0iOSIgZmlsbD0icmdiYSgyNDQsMjQwLDIzMCwwLjQ1KSIKICBsZXR0ZXItc3BhY2luZz0iMSI+RklSRSAyMDI2PC90ZXh0PgoKPHRleHQgeD0iNjI1IiB5PSIyMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiCiAgZm9udC1mYW1pbHk9IkZyYXVuY2VzLEdlb3JnaWEsc2VyaWYiIGZvbnQtd2VpZ2h0PSI2MDAiIGZvbnQtc2l6ZT0iMTIuNSIKICBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuNTUpIj4xMDBLPC90ZXh0Pgo8L3N2Zz4=';
-  img.alt='Ingresso Imersão Lançamento Semente';
+  img.src='data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSItMTAgLTEwIDcyMCAyODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxkZWZzPgogIDxsaW5lYXJHcmFkaWVudCBpZD0iYmciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMxYTIxNTgiLz4KICAgIDxzdG9wIG9mZnNldD0iNTUlIiBzdG9wLWNvbG9yPSIjMWUyYTZlIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxODFmNGUiLz4KICA8L2xpbmVhckdyYWRpZW50PgogIDxsaW5lYXJHcmFkaWVudCBpZD0iYmcyIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMCI+CiAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWMyNDYwIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxODFmNGUiLz4KICA8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cgo8cGF0aCBkPSJNMTYgMTZMMTYuMCAxNi4wIFEyNC4xIDI0LjAgMzIuMiAxNi4wIFE0MC4zIDI0LjAgNDguNCAxNi4wIFE1Ni41IDI0LjAgNjQuNiAxNi4wIFE3Mi43IDI0LjAgODAuOCAxNi4wIFE4OC44IDI0LjAgOTYuOSAxNi4wIFExMDUuMCAyNC4wIDExMy4xIDE2LjAgUTEyMS4yIDI0LjAgMTI5LjMgMTYuMCBRMTM3LjQgMjQuMCAxNDUuNSAxNi4wIFExNTMuNiAyNC4wIDE2MS43IDE2LjAgUTE2OS44IDI0LjAgMTc3LjkgMTYuMCBRMTg2LjAgMjQuMCAxOTQuMSAxNi4wIFEyMDIuMiAyNC4wIDIxMC4yIDE2LjAgUTIxOC4zIDI0LjAgMjI2LjQgMTYuMCBRMjM0LjUgMjQuMCAyNDIuNiAxNi4wIFEyNTAuNyAyNC4wIDI1OC44IDE2LjAgUTI2Ni45IDI0LjAgMjc1LjAgMTYuMCBRMjgzLjEgMjQuMCAyOTEuMiAxNi4wIFEyOTkuMyAyNC4wIDMwNy40IDE2LjAgUTMxNS41IDI0LjAgMzIzLjYgMTYuMCBRMzMxLjcgMjQuMCAzMzkuOCAxNi4wIFEzNDcuOCAyNC4wIDM1NS45IDE2LjAgUTM2NC4wIDI0LjAgMzcyLjEgMTYuMCBRMzgwLjIgMjQuMCAzODguMyAxNi4wIFEzOTYuNCAyNC4wIDQwNC41IDE2LjAgUTQxMi42IDI0LjAgNDIwLjcgMTYuMCBRNDI4LjggMjQuMCA0MzYuOSAxNi4wIFE0NDUuMCAyNC4wIDQ1My4xIDE2LjAgUTQ2MS4yIDI0LjAgNDY5LjIgMTYuMCBRNDc3LjMgMjQuMCA0ODUuNCAxNi4wIFE0OTMuNSAyNC4wIDUwMS42IDE2LjAgUTUwOS43IDI0LjAgNTE3LjggMTYuMCBRNTI1LjkgMjQuMCA1MzQuMCAxNi4wIEw1MzQgMTYgTDUzNCAyNDRMNTM0LjAgMjQ0LjAgUTUyNS45IDIzNi4wIDUxNy44IDI0NC4wIFE1MDkuNyAyMzYuMCA1MDEuNiAyNDQuMCBRNDkzLjUgMjM2LjAgNDg1LjQgMjQ0LjAgUTQ3Ny4zIDIzNi4wIDQ2OS4yIDI0NC4wIFE0NjEuMiAyMzYuMCA0NTMuMSAyNDQuMCBRNDQ1LjAgMjM2LjAgNDM2LjkgMjQ0LjAgUTQyOC44IDIzNi4wIDQyMC43IDI0NC4wIFE0MTIuNiAyMzYuMCA0MDQuNSAyNDQuMCBRMzk2LjQgMjM2LjAgMzg4LjMgMjQ0LjAgUTM4MC4yIDIzNi4wIDM3Mi4xIDI0NC4wIFEzNjQuMCAyMzYuMCAzNTUuOSAyNDQuMCBRMzQ3LjggMjM2LjAgMzM5LjggMjQ0LjAgUTMzMS43IDIzNi4wIDMyMy42IDI0NC4wIFEzMTUuNSAyMzYuMCAzMDcuNCAyNDQuMCBRMjk5LjMgMjM2LjAgMjkxLjIgMjQ0LjAgUTI4My4xIDIzNi4wIDI3NS4wIDI0NC4wIFEyNjYuOSAyMzYuMCAyNTguOCAyNDQuMCBRMjUwLjcgMjM2LjAgMjQyLjYgMjQ0LjAgUTIzNC41IDIzNi4wIDIyNi40IDI0NC4wIFEyMTguMyAyMzYuMCAyMTAuMiAyNDQuMCBRMjAyLjIgMjM2LjAgMTk0LjEgMjQ0LjAgUTE4Ni4wIDIzNi4wIDE3Ny45IDI0NC4wIFExNjkuOCAyMzYuMCAxNjEuNyAyNDQuMCBRMTUzLjYgMjM2LjAgMTQ1LjUgMjQ0LjAgUTEzNy40IDIzNi4wIDEyOS4zIDI0NC4wIFExMjEuMiAyMzYuMCAxMTMuMSAyNDQuMCBRMTA1LjAgMjM2LjAgOTYuOSAyNDQuMCBRODguOCAyMzYuMCA4MC44IDI0NC4wIFE3Mi43IDIzNi4wIDY0LjYgMjQ0LjAgUTU2LjUgMjM2LjAgNDguNCAyNDQuMCBRNDAuMyAyMzYuMCAzMi4yIDI0NC4wIFEyNC4xIDIzNi4wIDE2LjAgMjQ0LjAgWiIgZmlsbD0idXJsKCNiZykiIHN0cm9rZT0icmdiYSgyMjcsMTkwLDEyNCwwLjU1KSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KCjxyZWN0IHg9IjQxOCIgeT0iMzIiIHdpZHRoPSIxMDAiIGhlaWdodD0iMjYiIHJ4PSIxMyIgZmlsbD0iIzJGNkI0RiIvPgo8dGV4dCB4PSI0NjgiIHk9IjQ5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIgogIGZvbnQtZmFtaWx5PSJJbnRlcixzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iODAwIiBmb250LXNpemU9IjEwLjUiCiAgZmlsbD0id2hpdGUiIGxldHRlci1zcGFjaW5nPSIxLjMiPkNPUlRFU0lBPC90ZXh0PgoKPHBhdGggZD0iTTU2NiAxNkw1NjYuMCAxNi4wIFE1NzQuNCAyNC4wIDU4Mi45IDE2LjAgUTU5MS4zIDI0LjAgNTk5LjcgMTYuMCBRNjA4LjEgMjQuMCA2MTYuNiAxNi4wIFE2MjUuMCAyNC4wIDYzMy40IDE2LjAgUTY0MS45IDI0LjAgNjUwLjMgMTYuMCBRNjU4LjcgMjQuMCA2NjcuMSAxNi4wIFE2NzUuNiAyNC4wIDY4NC4wIDE2LjAgTDY4NCAxNiBMNjg0IDI0NEw2ODQuMCAyNDQuMCBRNjc1LjYgMjM2LjAgNjY3LjEgMjQ0LjAgUTY1OC43IDIzNi4wIDY1MC4zIDI0NC4wIFE2NDEuOSAyMzYuMCA2MzMuNCAyNDQuMCBRNjI1LjAgMjM2LjAgNjE2LjYgMjQ0LjAgUTYwOC4xIDIzNi4wIDU5OS43IDI0NC4wIFE1OTEuMyAyMzYuMCA1ODIuOSAyNDQuMCBRNTc0LjQgMjM2LjAgNTY2LjAgMjQ0LjAgTDU2NiAyNDQgWiIgZmlsbD0idXJsKCNiZzIpIiBzdHJva2U9InJnYmEoMjI3LDE5MCwxMjQsMC41NSkiIHN0cm9rZS13aWR0aD0iMS41Ii8+Cgo8bGluZSB4MT0iNTUwIiB5MT0iMjAiIHgyPSI1NTAiIHkyPSIyNDAiCiAgc3Ryb2tlPSJyZ2JhKDIyNywxOTAsMTI0LDAuNDUpIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWRhc2hhcnJheT0iNiA0Ii8+Cgo8Y2lyY2xlIGN4PSI1NTAiIGN5PSIwIiByPSIxNCIgZmlsbD0iIzE0MTgzMCIgc3Ryb2tlPSJyZ2JhKDIyNywxOTAsMTI0LDAuNSkiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjxjaXJjbGUgY3g9IjU1MCIgY3k9IjI2MCIgcj0iMTQiIGZpbGw9IiMxNDE4MzAiIHN0cm9rZT0icmdiYSgyMjcsMTkwLDEyNCwwLjUpIiBzdHJva2Utd2lkdGg9IjEuNSIvPgoKPHRleHQgeD0iMzIiIHk9IjQ2IiBmb250LWZhbWlseT0iSW50ZXIsc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjYwMCIgZm9udC1zaXplPSIxMSIKICBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuNDUpIiBsZXR0ZXItc3BhY2luZz0iMiI+SU5TSURFUiDDlyBFUklDTyBST0NIQTwvdGV4dD4KCjxsaW5lIHgxPSIzMiIgeTE9IjcyIiB4Mj0iNTE0IiB5Mj0iNzIiCiAgc3Ryb2tlPSJyZ2JhKDIyNywxOTAsMTI0LDAuMikiIHN0cm9rZS13aWR0aD0iMSIvPgoKPCEtLSBub21lIGVtIHVtYSDDum5pY2EgbGluaGEsIGRvaXMgcGVzb3MgLS0+Cjx0ZXh0IHg9IjMyIiB5PSIxMTYiIGZvbnQtZmFtaWx5PSJGcmF1bmNlcyxHZW9yZ2lhLHNlcmlmIj4KICA8dHNwYW4gZm9udC13ZWlnaHQ9IjcwMCIgZm9udC1zaXplPSIyMSIgZmlsbD0iI0Y0RjBFNiIgbGV0dGVyLXNwYWNpbmc9Ii0wLjMiPklNRVJTw4NPIEZMIDEwMEs8L3RzcGFuPgogIDx0c3BhbiBmb250LWZhbWlseT0iSW50ZXIsc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjUwMCIgZm9udC1zaXplPSIxNS41IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuNikiPiDCtyBTZXUgcHJpbWVpcm8gUiQgMTAwIG1pbCBuYSBJbnRlcm5ldDwvdHNwYW4+CjwvdGV4dD4KCjx0ZXh0IHg9IjMyIiB5PSIxNDQiIGZvbnQtZmFtaWx5PSJJbnRlcixzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIgogIGZpbGw9InJnYmEoMjQ0LDI0MCwyMzAsMC41KSI+SG90bWFydCBGaXJlIDIwMjYgIMK3ICBDb3J0ZXNpYSBFeGNsdXNpdmE8L3RleHQ+Cgo8dGV4dCB4PSIzMiIgeT0iMTc0IiBmb250LXNpemU9IjEzIiBmaWxsPSJyZ2JhKDIyNywxOTAsMTI0LDAuNikiPuKYhSAg4piFICDimIUgIOKYhSAg4piFPC90ZXh0PgoKPGNpcmNsZSBjeD0iNDgiIGN5PSIyMTgiIHI9IjUiIGZpbGw9IiMzRThDNjciLz4KPHRleHQgeD0iNjAiIHk9IjIyMiIgZm9udC1mYW1pbHk9IkludGVyLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIuNSIKICBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuNykiPkluZ3Jlc3NvIGF0aXZvIGUgdsOhbGlkbzwvdGV4dD4KCjx0ZXh0IHg9IjUyMCIgeT0iMjA2IiB0ZXh0LWFuY2hvcj0iZW5kIgogIGZvbnQtZmFtaWx5PSJGcmF1bmNlcyxHZW9yZ2lhLHNlcmlmIiBmb250LXdlaWdodD0iNzAwIiBmb250LXNpemU9IjIyIiBmaWxsPSIjRTNCRTdDIj4xMDAlIGdyYXR1aXRvPC90ZXh0Pgo8dGV4dCB4PSI1MjAiIHk9IjIyNiIgdGV4dC1hbmNob3I9ImVuZCIKICBmb250LWZhbWlseT0iSW50ZXIsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgZmlsbD0icmdiYSgyNDQsMjQwLDIzMCwwLjUpIj5WYWxvciBkZSBtZXJjYWRvOiBSJCA0OTc8L3RleHQ+Cgo8dGV4dCB4PSI2MjUiIHk9IjQyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIgogIGZvbnQtZmFtaWx5PSJJbnRlcixzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iNzAwIiBmb250LXNpemU9IjExIgogIGZpbGw9InJnYmEoMjQ0LDI0MCwyMzAsMC41KSIgbGV0dGVyLXNwYWNpbmc9IjIiPkNPUlRFU0lBPC90ZXh0PgoKPHJlY3QgeD0iNTkzLjAiIHk9IjkyIiB3aWR0aD0iMy43IiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNTk4LjYiIHk9IjkyIiB3aWR0aD0iMi4zIiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjAyLjciIHk9IjkyIiB3aWR0aD0iMy43IiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjA5LjciIHk9IjkyIiB3aWR0aD0iMC45IiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjEzLjkiIHk9IjkyIiB3aWR0aD0iMC45IiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjE5LjQiIHk9IjkyIiB3aWR0aD0iMi4zIiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjIzLjYiIHk9IjkyIiB3aWR0aD0iMi4zIiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjI3LjgiIHk9IjkyIiB3aWR0aD0iMy43IiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjMzLjMiIHk9IjkyIiB3aWR0aD0iMi4zIiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjQwLjMiIHk9IjkyIiB3aWR0aD0iMC45IiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjQ0LjUiIHk9IjkyIiB3aWR0aD0iMC45IiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjUwLjAiIHk9IjkyIiB3aWR0aD0iMi4zIiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+PHJlY3QgeD0iNjU0LjIiIHk9IjkyIiB3aWR0aD0iMi4zIiBoZWlnaHQ9IjY0IiBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuODUpIi8+Cgo8dGV4dCB4PSI2MjUiIHk9IjE3OCIgdGV4dC1hbmNob3I9Im1pZGRsZSIKICBmb250LWZhbWlseT0iSUJNIFBsZXggTW9ubyxtb25vc3BhY2UiIGZvbnQtc2l6ZT0iOSIgZmlsbD0icmdiYSgyNDQsMjQwLDIzMCwwLjQ1KSIKICBsZXR0ZXItc3BhY2luZz0iMSI+RklSRSAyMDI2PC90ZXh0PgoKPHRleHQgeD0iNjI1IiB5PSIyMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiCiAgZm9udC1mYW1pbHk9IkZyYXVuY2VzLEdlb3JnaWEsc2VyaWYiIGZvbnQtd2VpZ2h0PSI2MDAiIGZvbnQtc2l6ZT0iMTIuNSIKICBmaWxsPSJyZ2JhKDI0NCwyNDAsMjMwLDAuNTUpIj4xMDBLPC90ZXh0Pgo8L3N2Zz4=';
+  img.alt='Ingresso Imersão FL 100K';
   img.style.cssText='width:100%;height:auto;display:block;border-radius:12px';
   wrap.appendChild(img);
 
@@ -948,7 +968,7 @@ function intro(){
   btn.innerHTML='Resgatar meu ingresso <span class="seta">→</span>';
   btn.onclick=()=>{ confete(); avancarDaLanding(); };
   ring.appendChild(btn); cw.appendChild(ring); lnd.appendChild(cw);
-  lnd.appendChild(el('p','land-hint','🔒 Gratuito · Exclusivo · Limitado'));
+  lnd.appendChild(el('p','land-hint','Gratuito · Exclusivo · Limitado'));
 }
 function avancarDaLanding(){
   const lnd=document.getElementById('landing');
@@ -992,10 +1012,12 @@ function retomar(){
 }
 
 function interludio(s){
+  if(s.centro) app.classList.add('centro');
+  if(s.marco) app.appendChild(el('div','marco',s.marco));
   app.appendChild(el('h1',null,realce(primeiroNome() ? s.title.replace('Agora que você','Agora que você, '+primeiroNome()+',') : s.title, s.hl)));
   const l = el('div','lead'); s.body.forEach(t=>l.appendChild(el('p',null,t)));
   app.appendChild(l);
-  acoes('Continuar', ()=>ir(1));
+  acoes(s.cta || 'Continuar', ()=>ir(1), true, !!s.verde);
 }
 
 function identificacao(){
@@ -1080,7 +1102,7 @@ function pergunta(s){
   if(s.help) app.appendChild(el('p','apoio',s.help));
   const err = el('p','erro');
   const ultima = pos === total;
-  const rotulo = ultima ? 'Finalizar jornada' : 'Continuar';
+  const rotulo = s.cta || (ultima ? 'Finalizar jornada' : 'Continuar');
 
   /* ---- escala ---- */
   if(s.t==='scale'){
@@ -1173,7 +1195,7 @@ function pergunta(s){
     const lab = el('label','opt'); lab.dataset.v = v;
     const inp = el('input'); inp.type = multi?'checkbox':'radio'; inp.name = s.id;
     lab.appendChild(inp);
-    lab.appendChild(el('span','txt', v==='__other__' ? 'Outro' : v));
+    lab.appendChild(el('span','txt', v==='__other__' ? 'Outro' : (s.rica ? formatarOpcaoRica(v) : v)));
     lab.style.animationDelay = (0.16 + itens.indexOf(v)*0.028).toFixed(3) + 's';
     inp.onchange = ()=>{
       if(multi){
@@ -1234,11 +1256,11 @@ function conclusao(){
   const selo = el('div','selo');
   selo.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 12.5l5.2 5.2L20 7"/></svg>';
   app.appendChild(selo);
-  app.appendChild(el('h1',null,'Inscrição confirmada'+(primeiroNome()?', '+primeiroNome():'')+'! 🎉'));
+  app.appendChild(el('h1',null,'Inscrição confirmada'+(primeiroNome()?', '+primeiroNome():'')+'!'));
   const l = el('div','lead');
   l.innerHTML = `<p>Sua solicitação foi recebida com sucesso!</p>
   <p>Em breve nossa equipe entrará em contato pelo WhatsApp ou e-mail para confirmar todos os detalhes da sua participação.</p>
-  <p><strong>Nos vemos em breve na Imersão Lançamento Semente! ✨</strong></p>`;
+  <p><strong>Nos vemos em breve na Imersão FL 100K!</strong></p>`;
   app.appendChild(l);
   const st = el('p','registro','Registrando suas respostas…');
   st.id = 'registro';
@@ -1284,7 +1306,7 @@ function perguntaBonus(s){
   const box=el('div');
   box.style.cssText='background:rgba(227,190,124,.1);border:1px solid rgba(227,190,124,.3);border-radius:16px;padding:24px;text-align:center;margin-top:20px';
   const btns=el('div'); btns.style.cssText='display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:4px';
-  const bSim=el('button','btn','✓ Quero sim! →');
+  const bSim=el('button','btn','Quero sim! →');
   bSim.style.background='var(--stamp-amber)'; bSim.style.color='#141830';
   const bNao=el('button','btn','Não, obrigado');
   bNao.style.cssText='background:transparent;border:1px solid rgba(244,240,230,.25);color:rgba(244,240,230,.6)';
