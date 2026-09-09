@@ -1,0 +1,8 @@
+# Configuração para Cloudflare Pages
+# Não é necessário editar este arquivo para publicação via dashboard.
+
+name = "jornada-fire"
+compatibility_date = "2024-01-01"
+
+[site]
+bucket = "."
