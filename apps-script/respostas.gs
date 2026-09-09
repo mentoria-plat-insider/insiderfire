@@ -2,14 +2,23 @@
  * Recebe as respostas do formulário "Ingressos Hotmart Fire 26" e grava na
  * planilha, com atualização da mesma linha pelo e-mail (upsert).
  *
- * Como publicar:
- *   1. Abra a planilha que vai receber as respostas.
- *   2. Extensões → Apps Script. Apague o conteúdo e cole este arquivo.
- *   3. Implantar → Nova implantação → tipo "App da Web".
+ * Como atualizar o script de uma planilha que JÁ está no ar (caso normal):
+ *   1. Na planilha: Extensões → Apps Script. Apague o conteúdo e cole este
+ *      arquivo. Salve.
+ *   2. Implantar → Gerenciar implantações → lápis (editar) na implantação
+ *      existente → Versão: "Nova versão" → Implantar.
+ *      Editar a implantação existente mantém a mesma URL, então o ENDPOINT
+ *      do index.html continua valendo. Criar uma implantação nova gera outra
+ *      URL e exigiria trocar o ENDPOINT.
+ *   Salvar sem implantar não muda nada para quem acessa o formulário.
+ *
+ * Como publicar numa planilha nova:
+ *   1. Extensões → Apps Script, cole este arquivo.
+ *   2. Implantar → Nova implantação → tipo "App da Web".
  *        Executar como: eu mesmo
  *        Quem pode acessar: qualquer pessoa
- *   4. Copie a URL gerada (termina em /exec) para a constante ENDPOINT do
- *      index.html. Se o endereço não mudar, nem isso é necessário.
+ *   3. Copie a URL gerada (termina em /exec) para a constante ENDPOINT do
+ *      index.html.
  *
  * Por que upsert e não "uma resposta por e-mail":
  *   O formulário grava duas vezes. A primeira logo depois da identificação,
