@@ -13,6 +13,7 @@ planilha — mesmo que a pessoa não conclua o formulário.
 | Arquivo | Para que serve |
 | --- | --- |
 | `index.html` | Formulário completo: landing, identificação, evento, bônus, confirmação. |
+| `apps-script/respostas.gs` | Recebe as respostas e grava na planilha do Google. |
 | `_redirects` | Roteamento para Cloudflare Pages. |
 | `_headers` | Cabeçalhos de segurança e cache. |
 | `wrangler.toml` | Configuração opcional via CLI da Cloudflare. |
@@ -25,10 +26,26 @@ identificação, esses dados já são gravados na planilha com
 bônus, confirmação), a mesma linha é atualizada para
 **Status = "Completo"** — não cria duplicata.
 
-Isso depende de um Apps Script com suporte a "upsert" por e-mail (arquivo
-`apps-script-respostas.gs`, compartilhado com os outros formulários do
-projeto). Sem esse suporte no script publicado, o salvamento parcial não
-funciona.
+Os dados do acompanhante só existem na segunda gravação, porque o bônus só
+é perguntado depois da identificação. Por isso o Apps Script **precisa**
+atualizar a linha existente pelo e-mail (upsert). Um script que recusa
+e-mail repetido descarta justamente a gravação final: a planilha fica com a
+linha "Parcial" e as colunas de acompanhante vazias para sempre.
+
+O script correto está em `apps-script/respostas.gs`, neste repositório. Ele
+casa os valores com as colunas **pelo nome do cabeçalho**, não por posição,
+e nunca sobrescreve um valor já gravado com um valor vazio.
+
+### Publicar o Apps Script
+
+1. Na planilha: Extensões → Apps Script, cole `apps-script/respostas.gs`
+   no lugar do conteúdo atual.
+2. Implantar → Gerenciar implantações → editar a implantação existente →
+   Versão: "Nova versão" → Implantar. Assim a URL do `ENDPOINT` continua a
+   mesma e o `index.html` não precisa mudar.
+3. Quem pode acessar: **qualquer pessoa** (não "qualquer pessoa da
+   organização", senão quem responde com e-mail pessoal trava numa tela de
+   login do Google).
 
 ## Colunas gravadas na planilha
 
@@ -39,8 +56,8 @@ Iniciado em · Atualizado em · Formulário
 ## Trocar a planilha
 
 A URL do Apps Script está na constante `ENDPOINT` no início do `<script>`
-do `index.html`. Publique um novo App da Web (com suporte a upsert) e
-substitua essa linha.
+do `index.html`. Publique `apps-script/respostas.gs` como App da Web na
+nova planilha e substitua essa linha.
 
 ## Publicação no Cloudflare Pages (via dashboard)
 
