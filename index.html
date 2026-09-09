@@ -564,7 +564,7 @@ const Q = {
     balao:'Este bônus é exclusivo para participantes do Hotmart Fire 2026.'},
 
   /* ── DADOS DO ACOMPANHANTE (condicional) ── */
-  a_depois:{n:3,t:'single',cta:'Continuar',
+  a_depois:{n:3,t:'single',cta:'Continuar',verde:false,
     title:'Prefere informar os dados do acompanhante agora ou depois?',
     opts:['Informar agora','Informar depois — o time entrará em contato'],
     cond:'bonus',
@@ -583,7 +583,8 @@ const SCREENS = [
   'evento',
   {id:'inter_resgate',kind:'interlude',centro:true,marco:'Ingresso resgatado',
    title:tituloResgate,
-   body:['E tem mais: você desbloqueou um bônus exclusivo — um ingresso extra para levar alguém especial, 100% gratuito.']},
+   body:['Além do seu ingresso, temos um presente especial: mais 1 ingresso para levar um convidado com você!',
+         'Escolha alguém especial para viver essa experiência ao seu lado. Seu ingresso é por nossa conta e o do seu convidado também!']},
   'bonus','a_depois','a_dados',
   {id:'fim',kind:'final'}
 ];
@@ -755,7 +756,10 @@ async function consultarEmailFire(email){
 }
 
 /* Rascunho no navegador de quem responde, apagado ao concluir. */
-const CHAVE = 'fire26_v1';
+/* Muda quando a estrutura de telas muda de um jeito que quebra rascunhos
+   antigos (telas removidas/reordenadas) — invalida o que já estava salvo
+   no navegador em vez de tentar retomar num índice que não bate mais. */
+const CHAVE = 'fire26_v2';
 function lerRascunho(){ try{ return JSON.parse(localStorage.getItem(CHAVE)); }catch(e){ return null; } }
 function salvarRascunho(){ try{ localStorage.setItem(CHAVE, JSON.stringify({A,i})); }catch(e){} }
 function limparRascunho(){ try{ localStorage.removeItem(CHAVE); }catch(e){} }
@@ -1133,6 +1137,12 @@ function pergunta(s){
   const err = el('p','erro');
   const ultima = pos === total;
   const rotulo = s.cta || (ultima ? 'Finalizar jornada' : 'Continuar');
+  /* O botão só fica verde quando a pergunta REALMENTE encerra a jornada —
+     uma pergunta com desdobramento (ex.: pode ou não abrir mais telas
+     depois dela) fica com a cor normal, senão a cor promete um fim que
+     ainda não chegou. s.verde permite forçar isso quando `ultima` não é
+     confiável (calculado antes de saber que opção a pessoa vai escolher). */
+  const verdeBotao = s.verde !== undefined ? s.verde : ultima;
 
   /* ---- escala ---- */
   if(s.t==='scale'){
@@ -1153,7 +1163,7 @@ function pergunta(s){
     app.appendChild(pontas);
     const dica = el('p','dica','Escolha uma nota para continuar.');
     app.appendChild(dica); app.appendChild(err);
-    const btn = acoes(rotulo, ()=>{ if(val===null) return; A.respostas[s.id]={value:val}; ir(1); }, true, ultima);
+    const btn = acoes(rotulo, ()=>{ if(val===null) return; A.respostas[s.id]={value:val}; ir(1); }, true, verdeBotao);
     function travar(){ const ok = val!==null; btn.disabled = !ok; dica.style.display = ok ? 'none' : ''; }
     travar();
     return;
@@ -1170,7 +1180,7 @@ function pergunta(s){
       const v = t.value.trim();
       if(!v) return;
       A.respostas[s.id]={value:v}; ir(1);
-    }, true, ultima);
+    }, true, verdeBotao);
     function travar(){ const ok = !!t.value.trim(); btn.disabled = !ok; dica.style.display = ok ? 'none' : ''; }
     t.oninput = travar; travar();
     setTimeout(()=>t.focus(), 340);
@@ -1277,7 +1287,7 @@ function pergunta(s){
       : {value:limpo(sel), raw:sel, other:outroTxt};
     if(detalhe) A.respostas[s.id].detail = detalhe.value.trim();
     ir(1);
-  }, true, ultima);
+  }, true, verdeBotao);
   atualizar();
 }
 
@@ -1510,6 +1520,7 @@ function iniciar(){
       Object.assign(A, d.A||{});
       progresso(0, '', true);
       app.innerHTML = '';
+      app.style.display = 'block';
       app.classList.add('entra');
       retomar();
       return;
