@@ -125,6 +125,14 @@ function doPost(e) {
     var cabecalho = garantirColunas_(aba, colunas);
     var linha = linhaDoEmail_(aba, cabecalho, email);
 
+    // A gravação "Completo" é o retrato final das respostas: ela manda tudo o
+    // que a pessoa respondeu e pode sobrescrever qualquer coisa, inclusive
+    // com vazio (quem escolhe "informar depois" tem mesmo as colunas de
+    // acompanhante vazias). Já a "Parcial" só sabe nome, CPF, e-mail e
+    // WhatsApp — o resto vai em branco e não pode apagar nada.
+    var posStatus = colunas.indexOf(COL_STATUS);
+    var completo = posStatus !== -1 && String(valores[posStatus] || '').trim() === 'Completo';
+
     // Monta a linha na ordem do cabeçalho da planilha, casando pelo NOME da
     // coluna. Assim, reordenar ou acrescentar colunas na planilha à mão não
     // faz o dado cair no lugar errado.
@@ -134,12 +142,14 @@ function doPost(e) {
 
     var saida = cabecalho.map(function (nome, indice) {
       var pos = colunas.indexOf(nome);
-      var novo = pos === -1 ? '' : valores[pos];
       var tinha = anterior.length ? anterior[indice] : '';
 
-      // Valor vazio não apaga o que já estava gravado: a gravação "Parcial"
-      // manda as colunas de acompanhante em branco, e ela não pode zerar o
-      // que a gravação "Completo" já tiver preenchido.
+      // Coluna que o formulário não envia (ex.: sobra de uma versão antiga
+      // da planilha) fica como está, em qualquer situação.
+      if (pos === -1) return tinha;
+
+      var novo = valores[pos];
+      if (completo) return novo === null || novo === undefined ? '' : novo;
       if (novo === '' || novo === null || novo === undefined) return tinha;
       return novo;
     });
