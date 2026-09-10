@@ -47,11 +47,28 @@ function responder_(objeto) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-function cabecalho_(aba) {
+/**
+ * Lê a aba inteira de uma vez só.
+ *
+ * Cada chamada de getRange/getValues é uma ida e volta ao servidor da
+ * planilha, e elas acontecem dentro da trava, que atende um envio por vez.
+ * Numa abertura de inscrições isso vira fila: com uma leitura por etapa
+ * (cabeçalho, busca do e-mail, linha atual) o envio demorava mais do que os
+ * 15 segundos que o formulário espera, e as pessoas viam erro. Lendo tudo
+ * junto e resolvendo em memória, sobra uma leitura e uma escrita.
+ */
+function lerTudo_(aba) {
   if (aba.getLastRow() === 0 || aba.getLastColumn() === 0) return [];
-  return aba.getRange(1, 1, 1, aba.getLastColumn()).getValues()[0].map(function (c) {
-    return String(c || '').trim();
-  });
+  return aba.getDataRange().getValues();
+}
+
+function cabecalhoDe_(todos) {
+  if (!todos.length) return [];
+  return todos[0].map(function (c) { return String(c || '').trim(); });
+}
+
+function cabecalho_(aba) {
+  return cabecalhoDe_(lerTudo_(aba));
 }
 
 /**
@@ -59,9 +76,7 @@ function cabecalho_(aba) {
  * devolve o cabeçalho final. Coluna nova entra no fim, sem mexer na ordem
  * do que já está lá — quem já usa a planilha não vê nada se deslocar.
  */
-function garantirColunas_(aba, colunas) {
-  var atual = cabecalho_(aba);
-
+function garantirColunas_(aba, atual, colunas) {
   if (atual.length === 0) {
     aba.appendRow(colunas);
     aba.getRange(1, 1, 1, colunas.length).setFontWeight('bold');
@@ -81,15 +96,14 @@ function garantirColunas_(aba, colunas) {
   return atual;
 }
 
-/** Linha (número, base 1) do e-mail na planilha, ou 0 se ainda não existe. */
-function linhaDoEmail_(aba, cabecalho, email) {
-  if (!email || aba.getLastRow() < 2) return 0;
-  var col = cabecalho.indexOf(COL_EMAIL) + 1;
-  if (col === 0) return 0;
+/** Linha (número, base 1) do e-mail, procurando no que já foi lido. */
+function linhaDoEmail_(todos, cabecalho, email) {
+  if (!email || todos.length < 2) return 0;
+  var col = cabecalho.indexOf(COL_EMAIL);
+  if (col === -1) return 0;
 
-  var valores = aba.getRange(2, col, aba.getLastRow() - 1, 1).getValues();
-  for (var k = 0; k < valores.length; k++) {
-    if (String(valores[k][0] || '').trim().toLowerCase() === email) return k + 2;
+  for (var k = 1; k < todos.length; k++) {
+    if (String(todos[k][col] || '').trim().toLowerCase() === email) return k + 1;
   }
   return 0;
 }
@@ -99,14 +113,14 @@ function doGet(e) {
   var email = String((e.parameter && e.parameter.email) || '').trim().toLowerCase();
   if (!email) return responder_({ ok: true, existe: false, status: '' });
 
-  var aba = planilha_();
-  var cabecalho = cabecalho_(aba);
-  var linha = linhaDoEmail_(aba, cabecalho, email);
+  var todos = lerTudo_(planilha_());
+  var cabecalho = cabecalhoDe_(todos);
+  var linha = linhaDoEmail_(todos, cabecalho, email);
   if (!linha) return responder_({ ok: true, existe: false, status: '' });
 
   // O formulário só bloqueia quem já concluiu; "Parcial" pode retomar.
-  var colStatus = cabecalho.indexOf(COL_STATUS) + 1;
-  var status = colStatus ? String(aba.getRange(linha, colStatus).getValue() || '').trim() : '';
+  var colStatus = cabecalho.indexOf(COL_STATUS);
+  var status = colStatus === -1 ? '' : String(todos[linha - 1][colStatus] || '').trim();
   return responder_({ ok: true, existe: true, status: status });
 }
 
@@ -122,8 +136,9 @@ function doPost(e) {
     var email = String(dados.email || '').trim().toLowerCase();
 
     var aba = planilha_();
-    var cabecalho = garantirColunas_(aba, colunas);
-    var linha = linhaDoEmail_(aba, cabecalho, email);
+    var todos = lerTudo_(aba);                       // uma leitura, e só
+    var cabecalho = garantirColunas_(aba, cabecalhoDe_(todos), colunas);
+    var linha = linhaDoEmail_(todos, cabecalho, email);
 
     // A gravação "Completo" é o retrato final das respostas: ela manda tudo o
     // que a pessoa respondeu e pode sobrescrever qualquer coisa, inclusive
@@ -136,13 +151,24 @@ function doPost(e) {
     // Monta a linha na ordem do cabeçalho da planilha, casando pelo NOME da
     // coluna. Assim, reordenar ou acrescentar colunas na planilha à mão não
     // faz o dado cair no lugar errado.
-    var anterior = linha
-      ? aba.getRange(linha, 1, 1, cabecalho.length).getValues()[0]
-      : [];
+    var anterior = linha ? todos[linha - 1] : [];
+
+    // Quem já concluiu não pode ser rebaixado para "Parcial". Isso acontece
+    // se a pessoa reabre o formulário e a consulta de e-mail não responde a
+    // tempo: o formulário deixa passar, e a gravação da identificação chegaria
+    // aqui por cima de um cadastro que já estava completo.
+    if (!completo && linha) {
+      var colStatus = cabecalho.indexOf(COL_STATUS);
+      if (colStatus !== -1 && String(anterior[colStatus] || '').trim() === 'Completo') {
+        return responder_({ ok: true, linha: linha, acao: 'ignorado (já concluído)' });
+      }
+    }
 
     var saida = cabecalho.map(function (nome, indice) {
       var pos = colunas.indexOf(nome);
-      var tinha = anterior.length ? anterior[indice] : '';
+      // A coluna pode ser nova (acabou de entrar no cabeçalho), e aí não há
+      // nada anterior nesse índice.
+      var tinha = anterior[indice] === undefined ? '' : anterior[indice];
 
       // Coluna que o formulário não envia (ex.: sobra de uma versão antiga
       // da planilha) fica como está, em qualquer situação.
@@ -159,8 +185,11 @@ function doPost(e) {
       return responder_({ ok: true, linha: linha, acao: 'atualizado' });
     }
 
-    aba.appendRow(saida);
-    return responder_({ ok: true, linha: aba.getLastRow(), acao: 'inserido' });
+    // Escreve direto na primeira linha livre em vez de appendRow + getLastRow:
+    // duas idas e voltas a menos, ainda dentro da trava.
+    var nova = Math.max(todos.length, 1) + 1;
+    aba.getRange(nova, 1, 1, saida.length).setValues([saida]);
+    return responder_({ ok: true, linha: nova, acao: 'inserido' });
   } catch (erro) {
     return responder_({ ok: false, motivo: String(erro) });
   } finally {
