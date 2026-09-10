@@ -103,7 +103,9 @@
   /* ---------- Cabeçalho ---------- */
   .topo{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:120px}
   .brand-logo{height:52px;width:auto;display:block}
-  @media(max-width:640px){.brand-logo{height:40px}}
+  /* No celular os 120px de respiro do desktop empurram o conteúdo para
+     fora da primeira dobra — some do desktop, sobra só o essencial. */
+  @media(max-width:640px){.brand-logo{height:40px}.topo{margin-bottom:40px}}
   .medidor{width:100%;max-width:620px;display:flex;flex-direction:column;gap:9px;align-items:center}
   .progresso{width:100%;height:14px;border-radius:100px;background:rgba(244,240,230,.1);border:1px solid rgba(244,240,230,.14);
     overflow:hidden;box-shadow:inset 0 1px 2px rgba(30,35,66,.10)}
@@ -229,6 +231,9 @@
   .opt.bloqueada:hover{transform:none;box-shadow:none;border-color:var(--line-soft)}
   .opt span.txt{font-size:15.5px;line-height:1.4}
   .opt-prefixo{color:var(--ink-soft);font-weight:400}
+  .opt-cidade{color:var(--green);font-weight:700}
+  .opt-traco{color:var(--gray);font-weight:400}
+  .opt-data{color:var(--stamp-amber);font-weight:600}
   .opt span.txt strong{color:var(--ink);font-weight:700}
 
   /* caixa de seleção própria: mantém o campo nativo, só troca a aparência */
@@ -300,8 +305,9 @@
   :focus-visible{outline:2px solid var(--green);outline-offset:3px}
 
   .dica{font-size:13px;color:var(--gray);margin-top:16px;animation:sobe .3s var(--t) both}
-  .aviso-email{display:none;font-size:12.5px;color:var(--stamp-red);margin:7px 0 0}
+  .aviso-email{display:none;font-size:12.5px;color:var(--stamp-amber);margin:7px 0 0}
   .aviso-email.ver{display:block;animation:sobe .3s var(--t) both}
+  .aviso-email.valido{color:var(--green)}
   .erro{display:none;margin-top:16px;font-size:14px;color:var(--stamp-red);font-weight:500;
     background:var(--stamp-red-soft);border-radius:12px;padding:12px 15px}
   .erro.ver{display:block;animation:sobe .3s var(--t) both}
@@ -316,7 +322,7 @@
     animation:risca .45s var(--t) .3s forwards}
   @keyframes risca{to{stroke-dashoffset:0}}
   .fim{text-align:center}
-  .fim .lead{text-align:left;max-width:56ch;margin:0 auto}
+  .fim .lead{text-align:center;max-width:56ch;margin:0 auto}
   .registro{font-size:13px;color:var(--gray);margin-top:26px;text-align:center}
 
   /* Balão de ajuda: aparece se a pessoa trava numa pergunta. */
@@ -581,7 +587,7 @@ const SCREENS = [
   {id:'ident',kind:'ident'},
   {id:'inter1',kind:'interlude',centro:true,voltar:false,cta:'Escolher a cidade',verde:true,
    title:'Parabéns, seus dados foram registrados!',
-   body:['Selecione a cidade e a data.']},
+   body:['Falta bem pouco para resgatar seu ingresso totalmente gratuito! Agora, vamos escolher a cidade e a data da Imersão FL 100K que deseja participar.']},
   'evento',
   {id:'inter_resgate',kind:'interlude',centro:true,marco:'Ingresso resgatado',
    title:tituloResgate,
@@ -642,6 +648,8 @@ const primeiroNome = nomeCurto;
 /* Endereço do Apps Script ligado à planilha da equipe. Para trocar de planilha,
    basta publicar um novo App da Web e substituir esta linha. */
 const ENDPOINT = 'https://script.google.com/macros/s/AKfycbyay39JFp4omcwkcGAuQiYpeCXLv8r2z-niGDRYfFpZFO502OzdpdSXPO-4JdY-DFxR/exec';
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function mascararCpf(el){
   el.addEventListener('input',()=>{
@@ -901,7 +909,18 @@ function realce(txt, palavras){
 const PREFIXO_EVENTO = 'Imersão FL 100K ';
 function formatarOpcaoRica(v){
   if(!v.startsWith(PREFIXO_EVENTO)) return v;
-  return '<span class="opt-prefixo">'+PREFIXO_EVENTO+'</span><strong>'+v.slice(PREFIXO_EVENTO.length)+'</strong>';
+  const resto = v.slice(PREFIXO_EVENTO.length);
+  const idx = resto.indexOf('—');
+  if(idx<0) return '<span class="opt-prefixo">'+PREFIXO_EVENTO+'</span><strong>'+resto+'</strong>';
+  /* Cidade em verde, data em dourado: mesma leitura rápida do resto do app
+     (verde = escolha, dourado = ingresso), só que aqui separa os dois dados
+     que mais importam na hora de escolher. */
+  const cidade = resto.slice(0, idx).trim();
+  const data = resto.slice(idx+1).trim();
+  return '<span class="opt-prefixo">'+PREFIXO_EVENTO+'</span>'
+    +'<span class="opt-cidade">'+cidade+'</span>'
+    +' <span class="opt-traco">—</span> '
+    +'<span class="opt-data">'+data+'</span>';
 }
 
 function render(){
@@ -1067,7 +1086,13 @@ function identificacao(){
   const mail = el('input'); mail.type='email'; mail.value=A.email; mail.placeholder='voce@email.com'; mail.autocomplete='email';
   const avisoMail = el('p','aviso-email','Insira seu melhor e-mail.');
   f3.appendChild(mail); f3.appendChild(avisoMail); app.appendChild(f3);
-  mail.addEventListener('input', ()=>avisoMail.classList.toggle('ver', mail.value.trim().length > 0));
+  mail.addEventListener('input', ()=>{
+    const v = mail.value.trim();
+    const valido = EMAIL_RE.test(v);
+    avisoMail.classList.toggle('ver', v.length > 0);
+    avisoMail.classList.toggle('valido', valido);
+    avisoMail.textContent = valido ? 'E-mail válido.' : 'Insira seu melhor e-mail.';
+  });
 
   const f4 = el('label','campo'); f4.innerHTML = '<span class="rot">WhatsApp com DDD</span>';
   const whats = el('input'); whats.type='tel'; whats.value=A.whats; whats.placeholder='(00) 00000-0000';
@@ -1083,7 +1108,7 @@ function identificacao(){
 
     if(A.nome.length < 3){ falha(err,'Escreva seu nome completo para continuar.'); nome.focus(); return; }
     if(A.cpf.replace(/\D/g,'').length !== 11){ falha(err,'CPF inválido — verifique se digitou os 11 dígitos.'); cpf.focus(); return; }
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(A.email)){ falha(err,'Confira o e-mail: parece incompleto.'); mail.focus(); return; }
+    if(!EMAIL_RE.test(A.email)){ falha(err,'Confira o e-mail: parece incompleto.'); mail.focus(); return; }
     if(A.whats.replace(/\D/g,'').length < 10){ falha(err,'WhatsApp inválido — não esqueça do DDD.'); whats.focus(); return; }
 
     btn.disabled = true; btn.textContent = 'Verificando…';
@@ -1370,7 +1395,7 @@ function perguntaAcompanhante(s){
           vEmail = mail.value.trim().toLowerCase(), vWhats = whats.value.trim();
     if(vNome.length < 3){ falha(err,'Escreva o nome completo do acompanhante.'); nome.focus(); return; }
     if(vCpf.replace(/\D/g,'').length !== 11){ falha(err,'CPF inválido — verifique se digitou os 11 dígitos.'); cpf.focus(); return; }
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(vEmail)){ falha(err,'Confira o e-mail: parece incompleto.'); mail.focus(); return; }
+    if(!EMAIL_RE.test(vEmail)){ falha(err,'Confira o e-mail: parece incompleto.'); mail.focus(); return; }
     if(vWhats.replace(/\D/g,'').length < 10){ falha(err,'WhatsApp inválido — não esqueça do DDD.'); whats.focus(); return; }
     A.respostas.a_nome = {value:vNome};
     A.respostas.a_cpf = {value:vCpf};
