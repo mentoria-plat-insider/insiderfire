@@ -743,6 +743,22 @@ function montarLinhaFire(status){
   return {email:A.email, colunas:COLUNAS_FIRE, valores};
 }
 
+const espera = ms => new Promise(r=>setTimeout(r, ms));
+
+/* Confere na planilha se a inscrição chegou, tentando algumas vezes.
+   Numa abertura de inscrições o Apps Script atende um envio por vez e a
+   fila passa dos 15 segundos que esperamos pela resposta — mas a gravação
+   chega logo depois. Perguntar "chegou?" é diferente de supor que chegou. */
+async function confirmouInscricao(){
+  const intervalos = [3000, 5000, 8000];
+  for(const ms of intervalos){
+    await espera(ms);
+    const c = await consultarEmailFire(A.email);
+    if(c.status === 'Completo') return true;
+  }
+  return false;
+}
+
 async function enviarFire(status){
   const corpo = JSON.stringify(montarLinhaFire(status));
   try{
@@ -750,11 +766,23 @@ async function enviarFire(status){
       method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:corpo, redirect:'follow'
     }), 15000);
     const j = await r.json();
-    return !!j.ok;
-  }catch(e){
-    try{ await fetch(ENDPOINT, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:corpo}); }catch(e2){}
-    return false;
-  }
+    if(j.ok) return true;
+  }catch(e){ /* sem resposta a tempo — ainda pode ter gravado */ }
+
+  const reenviarAsCegas = ()=>{
+    try{ return fetch(ENDPOINT, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:corpo}); }
+    catch(e){ return Promise.resolve(); }
+  };
+
+  /* A gravação parcial roda em segundo plano e a jornada segue de qualquer
+     jeito, então aqui basta reenviar e sair do caminho da pessoa. */
+  if(status !== 'Completo'){ reenviarAsCegas().catch(()=>{}); return false; }
+
+  /* Já o envio final vira mensagem na tela. Confere antes de acusar erro:
+     reenviar por reenviar só aumentaria a fila que causou a demora. */
+  if(await confirmouInscricao()) return true;
+  await reenviarAsCegas().catch(()=>{});
+  return await confirmouInscricao();
 }
 
 /* Consulta se o e-mail já existe e, se existir, em que status está.
