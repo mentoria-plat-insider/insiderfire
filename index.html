@@ -564,11 +564,16 @@
 
 <script>
 /* ---------------- conteúdo da pesquisa ---------------- */
+/* Muita gente resgata o ingresso antes de saber para qual cidade vai, e sem
+   uma saída para isso a pessoa ou chuta uma cidade ou abandona o formulário.
+   Não começa com o nome da imersão de propósito: assim não é lida como mais
+   uma cidade na lista, e a tela de resgate sabe que não há cidade a anunciar. */
+const EVENTO_A_DEFINIR = 'Ainda não sei — quero escolher a cidade depois';
 const Q = {
   /* ── EVENTO ── */
   evento:{n:1,t:'single',title:'Escolha o evento que deseja participar:',
     hl:['evento'],cta:'Resgatar meu ingresso',rica:true,
-    opts:['Imersão FL 100K Goiânia — 18, 19 e 20 de Setembro/26','Imersão FL 100K Uberlândia — 25, 26 e 27 de Setembro/26','Imersão FL 100K Belo Horizonte — 09, 10 e 11 de Outubro/26','Imersão FL 100K Porto Alegre — 16, 17 e 18 de Outubro/26','Imersão FL 100K João Pessoa — 30, 31 out e 01 nov/26','Imersão FL 100K São Luís — 06, 07 e 08 de Novembro/26','Imersão FL 100K Brasília — 13, 14 e 15 de Novembro/26','Imersão FL 100K Balneário Camboriú — 04, 05 e 06 de Dezembro/26','Imersão FL 100K Campinas — 11, 12 e 13 de Dezembro/26','Imersão FL 100K em 2027 — Data a confirmar'],
+    opts:['Imersão FL 100K Goiânia — 18, 19 e 20 de Setembro/26','Imersão FL 100K Uberlândia — 25, 26 e 27 de Setembro/26','Imersão FL 100K Belo Horizonte — 09, 10 e 11 de Outubro/26','Imersão FL 100K Porto Alegre — 16, 17 e 18 de Outubro/26','Imersão FL 100K João Pessoa — 30, 31 out e 01 nov/26','Imersão FL 100K São Luís — 06, 07 e 08 de Novembro/26','Imersão FL 100K Brasília — 13, 14 e 15 de Novembro/26','Imersão FL 100K Balneário Camboriú — 04, 05 e 06 de Dezembro/26','Imersão FL 100K Campinas — 11, 12 e 13 de Dezembro/26','Imersão FL 100K em 2027 — Data a confirmar',EVENTO_A_DEFINIR],
     balao:'Escolha a cidade e data que melhor se encaixam na sua agenda.'},
 
   /* ── BÔNUS: ACOMPANHANTE ──
@@ -712,7 +717,11 @@ function eventoResumido(){
 }
 function tituloResgate(){
   const cidade = cidadeEvento();
-  if(!cidade || /^em\s/i.test(cidade)) return 'Parabéns! Seu ingresso foi resgatado.';
+  /* Sem cidade definida ("em 2027", "ainda não sei") não há o que anunciar
+     entre "ingresso para" e "foi resgatado" — o resgate vale do mesmo jeito. */
+  if(!cidade || nomeEvento() === EVENTO_A_DEFINIR || /^em\s/i.test(cidade)){
+    return 'Parabéns! Seu ingresso foi resgatado.';
+  }
   return 'Parabéns! Seu ingresso para <em class="dest">'+eventoResumido()+'</em> foi resgatado.';
 }
 /* Quem responde a pergunta do convidado vai levar alguém, a não ser que
