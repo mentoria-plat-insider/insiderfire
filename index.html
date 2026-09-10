@@ -560,21 +560,20 @@ const Q = {
     opts:['Imersão FL 100K Goiânia — 18, 19 e 20 de Setembro/26','Imersão FL 100K Uberlândia — 25, 26 e 27 de Setembro/26','Imersão FL 100K Belo Horizonte — 09, 10 e 11 de Outubro/26','Imersão FL 100K Porto Alegre — 16, 17 e 18 de Outubro/26','Imersão FL 100K João Pessoa — 30, 31 out e 01 nov/26','Imersão FL 100K São Luís — 06, 07 e 08 de Novembro/26','Imersão FL 100K Brasília — 13, 14 e 15 de Novembro/26','Imersão FL 100K Balneário Camboriú — 04, 05 e 06 de Dezembro/26','Imersão FL 100K Campinas — 11, 12 e 13 de Dezembro/26','Imersão FL 100K em 2027 — Data a confirmar'],
     balao:'Escolha a cidade e data que melhor se encaixam na sua agenda.'},
 
-  /* ── BÔNUS: ACOMPANHANTE ── */
-  bonus:{n:2,t:'bonus',title:'Temos um bônus exclusivo por você estar no FIRE!',
-    hl:['bônus exclusivo'],
-    help:'Você ganhou mais um ingresso para levar um convidado especial, totalmente gratuito! Quer aproveitar esse bônus?',
-    balao:'Este bônus é exclusivo para participantes do Hotmart Fire 2026.'},
-
-  /* ── DADOS DO ACOMPANHANTE (condicional) ── */
-  a_depois:{n:3,t:'single',cta:'Continuar',verde:false,
-    title:'Prefere informar os dados do acompanhante agora ou depois?',
-    opts:['Informar agora','Informar depois — o time entrará em contato'],
-    cond:'bonus',
+  /* ── BÔNUS: ACOMPANHANTE ──
+     A tela anterior já anuncia o ingresso extra, então aqui não se pergunta
+     de novo se a pessoa aceita: pergunta-se direto o que fazer com ele. A
+     terceira opção é quem não vai levar ninguém — sem ela, não haveria como
+     recusar o convite depois que a tela de aceite saiu. */
+  a_depois:{n:2,t:'single',cta:'Continuar',verde:false,
+    title:'Como você prefere seguir com o ingresso do convidado?',
+    opts:['Informar agora',
+          'Informar depois — o time entrará em contato',
+          'Não vou levar convidado'],
     balao:'Se não tiver os dados agora, sem problema! Nossa equipe entrará em contato para buscá-los.'},
   /* Nome, CPF, e-mail e WhatsApp do acompanhante numa página só,
      igual à identificação do titular — ver perguntaAcompanhante(). */
-  a_dados:{n:4,t:'acomp_dados',cond:'bonus_agora'}
+  a_dados:{n:3,t:'acomp_dados',cond:'acomp_agora'}
 };
 
 const SCREENS = [
@@ -588,7 +587,7 @@ const SCREENS = [
    title:tituloResgate,
    body:['Além do seu ingresso, temos um presente especial: mais 1 ingresso para levar um convidado com você!',
          'Escolha alguém especial para viver essa experiência ao seu lado. Seu ingresso é por nossa conta e o do seu convidado também!']},
-  'bonus','a_depois','a_dados',
+  'a_depois','a_dados',
   {id:'fim',kind:'final'}
 ];
 
@@ -596,7 +595,7 @@ const SCREENS = [
    Não mudam nenhuma pergunta, só organizam a leitura do progresso. */
 const CAPITULOS = [
   {nome:'Evento',         ids:['evento']},
-  {nome:'Bônus',          ids:['bonus','a_depois','a_dados']}
+  {nome:'Bônus',          ids:['a_depois','a_dados']}
 ];
 const capituloDe = id => (CAPITULOS.find(c=>c.ids.includes(id))||{}).nome || '';
 
@@ -610,19 +609,10 @@ const norm = s => (typeof s==='string') ? {id:s,kind:'q',...Q[s]} : s;
 const visible = s => {
   if(s.kind!=='q') return true;
   const q=Q[s.id]; if(!q) return true;
-  /* campos do acompanhante: só aparecem se aceitou o bônus */
-  if(q.cond==='bonus'){
-    const r=A.respostas['bonus'];
-    /* se não respondeu ainda, oculta; se respondeu 'Não', oculta */
-    if(!r) return false;
-    if(r.value==='Não, obrigado') return false;
-  }
-  /* dados do acompanhante: só se aceitou o bônus e escolheu informar agora */
-  if(q.cond==='bonus_agora'){
-    const rBonus=A.respostas['bonus'];
-    if(!rBonus || rBonus.value==='Não, obrigado') return false;
-    const rDepois=A.respostas['a_depois'];
-    if(!rDepois || rDepois.value!=='Informar agora') return false;
+  /* dados do acompanhante: só de quem escolheu informar agora */
+  if(q.cond==='acomp_agora'){
+    const r=A.respostas['a_depois'];
+    if(!r || r.value!=='Informar agora') return false;
   }
   return true;
 };
@@ -701,13 +691,16 @@ function tituloResgate(){
   if(!cidade || /^em\s/i.test(cidade)) return 'Parabéns! Seu ingresso foi resgatado.';
   return 'Parabéns! Seu ingresso para '+cidade+' foi resgatado.';
 }
+/* Quem responde a pergunta do convidado vai levar alguém, a não ser que
+   diga explicitamente o contrário. Enquanto não responder, ainda não dá
+   para afirmar nada — por isso a checagem exige a resposta existir. */
 function temAcompanhante(){
-  const r = A.respostas.bonus;
-  return r && r.value === 'Quero sim!';
+  const r = A.respostas.a_depois;
+  return !!r && r.value !== 'Não vou levar convidado';
 }
 function acompanhanteDepois(){
   const r = A.respostas.a_depois;
-  return r && r.value === 'Informar depois — o time entrará em contato';
+  return !!r && r.value === 'Informar depois — o time entrará em contato';
 }
 
 /* Monta a linha com os dados que já existem até este ponto da jornada.
@@ -762,7 +755,7 @@ async function consultarEmailFire(email){
 /* Muda quando a estrutura de telas muda de um jeito que quebra rascunhos
    antigos (telas removidas/reordenadas) — invalida o que já estava salvo
    no navegador em vez de tentar retomar num índice que não bate mais. */
-const CHAVE = 'fire26_v2';
+const CHAVE = 'fire26_v3';
 function lerRascunho(){ try{ return JSON.parse(localStorage.getItem(CHAVE)); }catch(e){ return null; } }
 function salvarRascunho(){ try{ localStorage.setItem(CHAVE, JSON.stringify({A,i})); }catch(e){} }
 function limparRascunho(){ try{ localStorage.removeItem(CHAVE); }catch(e){} }
@@ -954,7 +947,6 @@ function render(){
   if(s.kind==='retomar')   return retomar();
   if(s.kind==='interlude') return interludio(s);
   if(s.kind==='final')     return conclusao();
-  if(s.t==='bonus')        return perguntaBonus(s);
   if(s.t==='acomp_dados')  return perguntaAcompanhante(s);
   return pergunta(s);
 }
@@ -1339,28 +1331,6 @@ function celebracao(){
     });
     if(dt < 2100) requestAnimationFrame(quadro); else cv.remove();
   })(t0);
-}
-
-function perguntaBonus(s){
-  app.appendChild(el('div','marco','Bônus exclusivo Fire 26'));
-  app.appendChild(el('h2',null,realce(s.title,s.hl)));
-  app.appendChild(el('p','apoio',s.help));
-  const r=A.respostas.bonus||{};
-  const box=el('div');
-  box.style.cssText='background:rgba(227,190,124,.1);border:1px solid rgba(227,190,124,.3);border-radius:16px;padding:24px;text-align:center;margin-top:20px';
-  /* Centralizado com flex de verdade (não depende do texto-align do box),
-     então continua centralizado em qualquer largura de tela. */
-  const btns=el('div'); btns.style.cssText='display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:4px';
-  const bSim=el('button','btn','Quero sim!'+seta);
-  const bNao=el('button','btn btn-linha','Não, obrigado');
-  if(r.value==='Quero sim!'){ bSim.style.opacity='1'; bNao.style.opacity='.6'; }
-  if(r.value==='Não, obrigado'){ bNao.style.opacity='1'; bSim.style.opacity='.6'; }
-  bSim.onclick=()=>{ A.respostas.bonus={value:'Quero sim!',raw:'Quero sim!'}; ir(1); };
-  bNao.onclick=()=>{ A.respostas.bonus={value:'Não, obrigado',raw:'Não, obrigado'}; ir(1); };
-  btns.appendChild(bSim); btns.appendChild(bNao); box.appendChild(btns);
-  app.appendChild(box);
-  const vol=el('button','voltar','← Voltar'); vol.onclick=()=>ir(-1);
-  const nav=el('div','acoes'); nav.style.justifyContent='center'; nav.appendChild(vol); app.appendChild(nav);
 }
 
 /* Nome, CPF, e-mail e WhatsApp do acompanhante numa página só — mesmo
