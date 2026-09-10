@@ -34,6 +34,18 @@ var ABA = 'Respostas';
 var COL_EMAIL = 'E-mail';
 var COL_STATUS = 'Status';
 
+/**
+ * Ordem das etapas da jornada. Serve para a linha nunca andar para trás:
+ * "Parcial" é quem só deixou os dados, "Ingresso resgatado" é quem já
+ * escolheu a cidade e garantiu o ingresso, "Completo" é quem foi até o fim.
+ * Status desconhecido (vazio, ou de uma versão antiga do formulário) fica
+ * como 0 e não impede nada.
+ */
+var ETAPAS = { 'Parcial': 1, 'Ingresso resgatado': 2, 'Completo': 3 };
+function posicaoNaJornada_(status) {
+  return ETAPAS[String(status || '').trim()] || 0;
+}
+
 function planilha_() {
   var arquivo = SpreadsheetApp.getActiveSpreadsheet();
   var aba = arquivo.getSheetByName(ABA);
@@ -143,24 +155,27 @@ function doPost(e) {
     // A gravação "Completo" é o retrato final das respostas: ela manda tudo o
     // que a pessoa respondeu e pode sobrescrever qualquer coisa, inclusive
     // com vazio (quem escolhe "informar depois" tem mesmo as colunas de
-    // acompanhante vazias). Já a "Parcial" só sabe nome, CPF, e-mail e
-    // WhatsApp — o resto vai em branco e não pode apagar nada.
+    // acompanhante vazias). As anteriores conhecem menos e não podem apagar
+    // nada: o que vier vazio nelas preserva o que já estava gravado.
     var posStatus = colunas.indexOf(COL_STATUS);
-    var completo = posStatus !== -1 && String(valores[posStatus] || '').trim() === 'Completo';
+    var statusNovo = posStatus === -1 ? '' : String(valores[posStatus] || '').trim();
+    var completo = statusNovo === 'Completo';
 
     // Monta a linha na ordem do cabeçalho da planilha, casando pelo NOME da
     // coluna. Assim, reordenar ou acrescentar colunas na planilha à mão não
     // faz o dado cair no lugar errado.
     var anterior = linha ? todos[linha - 1] : [];
 
-    // Quem já concluiu não pode ser rebaixado para "Parcial". Isso acontece
-    // se a pessoa reabre o formulário e a consulta de e-mail não responde a
-    // tempo: o formulário deixa passar, e a gravação da identificação chegaria
-    // aqui por cima de um cadastro que já estava completo.
-    if (!completo && linha) {
-      var colStatus = cabecalho.indexOf(COL_STATUS);
-      if (colStatus !== -1 && String(anterior[colStatus] || '').trim() === 'Completo') {
-        return responder_({ ok: true, linha: linha, acao: 'ignorado (já concluído)' });
+    // A jornada só anda para a frente: quem já resgatou o ingresso não volta a
+    // "Parcial", e quem concluiu não volta a nada. Sem isso, alguém que reabre
+    // o formulário (a consulta de e-mail pode não responder a tempo e o
+    // formulário deixa passar de propósito) teria a gravação da identificação
+    // caindo por cima do que já havia conquistado.
+    var colStatus = cabecalho.indexOf(COL_STATUS);
+    if (linha && colStatus !== -1) {
+      var statusAtual = String(anterior[colStatus] || '').trim();
+      if (posicaoNaJornada_(statusNovo) < posicaoNaJornada_(statusAtual)) {
+        return responder_({ ok: true, linha: linha, acao: 'ignorado (etapa anterior)' });
       }
     }
 

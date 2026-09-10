@@ -595,9 +595,9 @@ const Q = {
 const SCREENS = [
   {id:'abertura',kind:'intro'},
   {id:'ident',kind:'ident'},
-  {id:'inter1',kind:'interlude',centro:true,voltar:false,cta:'Escolher a cidade',verde:true,
-   title:'Parabéns, seus dados foram registrados!',
-   body:['Falta bem pouco para resgatar seu ingresso totalmente gratuito! Agora, vamos escolher a cidade e a data da Imersão FL 100K que deseja participar.']},
+  /* Da identificação direto para a escolha da cidade: a tela de "seus dados
+     foram registrados" só anunciava o que a pessoa acabara de fazer e adiava
+     em um clique a escolha que interessa. */
   'evento',
   {id:'inter_resgate',kind:'interlude',centro:true,marco:'Ingresso resgatado',
    title:tituloResgate,
@@ -691,6 +691,15 @@ function comLimite(promessa, ms){
 /* Colunas fixas da planilha do Fire — mesma lista sempre, no salvamento
    parcial e no completo, para o Apps Script casar as duas linhas pelo
    e-mail e atualizar em vez de duplicar. */
+/* Três situações, não duas. "Parcial" é quem deixou os dados e sumiu antes de
+   escolher a cidade; RESGATADO é quem já garantiu o próprio ingresso e não
+   pediu o do convidado; "Completo" é quem foi até o fim. Sem o do meio, quem
+   resgata e fecha a página fica idêntico a quem desistiu no começo — e é
+   justamente a cidade dessa pessoa que a operação precisa.
+   RESGATADO não bloqueia o retorno: ela ainda pode voltar e pedir o segundo
+   ingresso, e aí a mesma linha vira "Completo". */
+const STATUS_RESGATADO = 'Ingresso resgatado';
+
 const COLUNAS_FIRE = [
   'Nome','CPF','E-mail','WhatsApp','Evento',
   'Acomp. Nome','Acomp. CPF','Acomp. E-mail','Acomp. WhatsApp','Acomp. informar depois',
@@ -751,11 +760,13 @@ function montarLinhaFire(status){
     comAcomp && !depois ? (A.respostas.a_cpf?.value||'') : '',
     comAcomp && !depois ? (A.respostas.a_email?.value||'') : '',
     comAcomp && !depois ? (A.respostas.a_whats?.value||'') : '',
-    /* Quem informou o convidado na hora gravava vazio aqui, e vazio não se
-       distingue de "ainda não respondeu" para quem lê a planilha. Agora as
-       três situações têm nome — a coluna pergunta "vai informar depois?" e
-       passa a responder Sim, Não ou que nem convidado haverá. */
-    status==='Completo' ? (!comAcomp ? 'Não vai levar' : (depois ? 'Sim' : 'Não — já informado')) : '',
+    /* Vazio aqui não se distingue de "ainda não respondeu", então cada
+       situação tem nome. Em RESGATADO a pessoa chegou até o ingresso dela e
+       parou antes de pedir o segundo — para a operação isso é uma resposta,
+       não uma lacuna. */
+    status===STATUS_RESGATADO ? 'Não solicitou'
+      : status==='Completo' ? (!comAcomp ? 'Não vai levar' : (depois ? 'Sim' : 'Não — já informado'))
+      : '',
     status,
     A.iniciadoEm || agora,
     agora,
@@ -822,7 +833,7 @@ async function consultarEmailFire(email){
 /* Muda quando a estrutura de telas muda de um jeito que quebra rascunhos
    antigos (telas removidas/reordenadas) — invalida o que já estava salvo
    no navegador em vez de tentar retomar num índice que não bate mais. */
-const CHAVE = 'fire26_v3';
+const CHAVE = 'fire26_v4';
 function lerRascunho(){ try{ return JSON.parse(localStorage.getItem(CHAVE)); }catch(e){ return null; } }
 function salvarRascunho(){ try{ localStorage.setItem(CHAVE, JSON.stringify({A,i})); }catch(e){} }
 function limparRascunho(){ try{ localStorage.removeItem(CHAVE); }catch(e){} }
@@ -1503,14 +1514,15 @@ function ir(d){
     dir = d; i += d;
     if(i < 0) i = 0;
     const s = norm(SCREENS[i]);
-    /* Guarda a cidade assim que ela é escolhida. Antes disso só existiam duas
-       gravações — a identificação e a do fim —, então quem escolhia a cidade
-       e parava no meio do caminho deixava a coluna Evento em branco, que é
-       justamente o que o time precisa para retomar o contato. Em segundo
-       plano: a pessoa não espera por isso para continuar. */
+    /* O ingresso do titular está resgatado no instante em que ele chega aqui
+       com uma cidade escolhida — o botão seguinte é sobre o convidado, não
+       sobre ele. Por isso a gravação acontece na chegada e não no clique:
+       quem fecha a página nesta tela resgatou o ingresso do mesmo jeito, e a
+       cidade escolhida é o dado que a operação usa depois. Vai em segundo
+       plano, ninguém espera por isso. */
     if(s.id==='inter_resgate' && !eventoGravado && nomeEvento()){
       eventoGravado = true;
-      enviarFire('Parcial');
+      enviarFire(STATUS_RESGATADO);
     }
     try{ render(); }catch(e){ mostrarFalha(e); }
     salvarRascunho();
