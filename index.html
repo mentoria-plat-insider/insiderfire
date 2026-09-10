@@ -740,7 +740,11 @@ function montarLinhaFire(status){
     comAcomp && !depois ? (A.respostas.a_cpf?.value||'') : '',
     comAcomp && !depois ? (A.respostas.a_email?.value||'') : '',
     comAcomp && !depois ? (A.respostas.a_whats?.value||'') : '',
-    status==='Completo' ? (!comAcomp ? 'Não vai levar' : (depois ? 'Sim' : '')) : '',
+    /* Quem informou o convidado na hora gravava vazio aqui, e vazio não se
+       distingue de "ainda não respondeu" para quem lê a planilha. Agora as
+       três situações têm nome — a coluna pergunta "vai informar depois?" e
+       passa a responder Sim, Não ou que nem convidado haverá. */
+    status==='Completo' ? (!comAcomp ? 'Não vai levar' : (depois ? 'Sim' : 'Não — já informado')) : '',
     status,
     A.iniciadoEm || agora,
     agora,
