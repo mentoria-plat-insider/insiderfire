@@ -18,19 +18,33 @@ planilha — mesmo que a pessoa não conclua o formulário.
 | `_headers` | Cabeçalhos de segurança e cache. |
 | `wrangler.toml` | Configuração opcional via CLI da Cloudflare. |
 
-## Coleta de dados — salvamento parcial
+## Coleta de dados — três gravações na mesma linha
 
-Assim que a pessoa preenche Nome, CPF, E-mail e WhatsApp na etapa de
-identificação, esses dados já são gravados na planilha com
-**Status = "Parcial"**. Ao concluir o restante do formulário (evento,
-bônus, confirmação), a mesma linha é atualizada para
-**Status = "Completo"** — não cria duplicata.
+A jornada grava a mesma linha (casada pelo e-mail) até três vezes, cada vez
+que fica sabendo de algo novo — nunca espera o fim para não perder quem
+desiste no meio:
 
-Os dados do acompanhante só existem na segunda gravação, porque o bônus só
-é perguntado depois da identificação. Por isso o Apps Script **precisa**
+1. **Status = "Parcial"** — assim que a pessoa preenche Nome, CPF, E-mail e
+   WhatsApp na etapa de identificação.
+2. **Status = "Ingresso resgatado"** — assim que a pessoa escolhe a cidade e
+   chega na tela de confirmação do ingresso, mesmo que feche a página ali e
+   nunca clique em "Continuar" (esse clique é só de quem quer o ingresso
+   extra do acompanhante). Sem essa gravação, a cidade escolhida por quem
+   não clica nunca chegava na planilha.
+3. **Status = "Completo"** — ao concluir o restante do formulário (dados do
+   acompanhante, se houver).
+
+Só "Completo" é definitivo (pode sobrescrever qualquer coluna, inclusive
+deixando em branco); "Parcial" e "Ingresso resgatado" só preenchem o que
+ainda está vazio, sem apagar nada. E a jornada só anda para a frente: uma
+gravação de etapa anterior à que já está na planilha é ignorada, então
+reabrir o formulário nunca rebaixa um cadastro que já avançou mais.
+
+Os dados do acompanhante só existem na terceira gravação, porque o bônus só
+é perguntado depois da tela de resgate. Por isso o Apps Script **precisa**
 atualizar a linha existente pelo e-mail (upsert). Um script que recusa
 e-mail repetido descarta justamente a gravação final: a planilha fica com a
-linha "Parcial" e as colunas de acompanhante vazias para sempre.
+linha "Ingresso resgatado" e as colunas de acompanhante vazias para sempre.
 
 O script correto está em `apps-script/respostas.gs`, neste repositório. Ele
 casa os valores com as colunas **pelo nome do cabeçalho**, não por posição,
