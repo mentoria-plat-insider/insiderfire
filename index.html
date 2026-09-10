@@ -618,6 +618,8 @@ const capituloDe = id => (CAPITULOS.find(c=>c.ids.includes(id))||{}).nome || '';
 /* ---------------- estado ---------------- */
 const A = {nome:'',email:'',cpf:'',whats:'',respostas:{}};
 let i = 0, dir = 1, savedOk = false, jaEnviado = false, transitando = false;
+/* Impede regravar a cidade a cada ida e volta entre as telas. */
+let eventoGravado = false;
 /* Enquanto true, uma troca de tela veio do botão voltar do navegador (popstate)
    — não deve empilhar um novo item no histórico, só refletir o que já mudou lá. */
 let sincronizandoHistorico = false;
@@ -1036,7 +1038,17 @@ function render(){
   if(s.kind==='ident')     return identificacao();
   if(s.kind==='retomar')   return retomar();
   if(s.kind==='interlude') return interludio(s);
-  if(s.kind==='final')     return conclusao();
+  /* O envio final dispara aqui, e não em ir(), porque nem toda chegada à
+     última tela passa por ir(): quando a tela de dados do convidado está
+     oculta (quem informa depois ou não leva ninguém), é o próprio render
+     que avança por cima dela. Com o gatilho em ir(), essas pessoas viam a
+     tela de "inscrição confirmada" sem que nada fosse gravado — ficavam
+     como "Parcial" na planilha para sempre. */
+  if(s.kind==='final'){
+    conclusao();
+    if(!jaEnviado){ jaEnviado = true; submeter(); }
+    return;
+  }
   if(s.t==='acomp_dados')  return perguntaAcompanhante(s);
   return pergunta(s);
 }
@@ -1491,7 +1503,15 @@ function ir(d){
     dir = d; i += d;
     if(i < 0) i = 0;
     const s = norm(SCREENS[i]);
-    if(s.kind==='final' && !jaEnviado){ jaEnviado = true; submeter(); }
+    /* Guarda a cidade assim que ela é escolhida. Antes disso só existiam duas
+       gravações — a identificação e a do fim —, então quem escolhia a cidade
+       e parava no meio do caminho deixava a coluna Evento em branco, que é
+       justamente o que o time precisa para retomar o contato. Em segundo
+       plano: a pessoa não espera por isso para continuar. */
+    if(s.id==='inter_resgate' && !eventoGravado && nomeEvento()){
+      eventoGravado = true;
+      enviarFire('Parcial');
+    }
     try{ render(); }catch(e){ mostrarFalha(e); }
     salvarRascunho();
     sincronizarHistorico(d>0);
