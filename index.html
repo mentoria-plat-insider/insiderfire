@@ -591,7 +591,7 @@ const SCREENS = [
   'evento',
   {id:'inter_resgate',kind:'interlude',centro:true,marco:'Ingresso resgatado',
    title:tituloResgate,
-   body:['Além do seu ingresso, temos um presente especial: mais 1 ingresso para levar um convidado com você!',
+   body:['<strong>Além do seu ingresso, temos um presente especial:</strong> <em class="dest">mais 1 ingresso</em> para levar um convidado com você!',
          'Escolha alguém especial para viver essa experiência ao seu lado. Seu ingresso é por nossa conta e o do seu convidado também!']},
   'a_depois','a_dados',
   {id:'fim',kind:'final'}
@@ -694,10 +694,18 @@ function cidadeEvento(){
   const idx = v.lastIndexOf('—');
   return (idx>=0 ? v.slice(0,idx) : v).trim();
 }
+/* Cidade + data juntas ("João Pessoa — 30, 31 out e 01 nov/26"), para a
+   tela de resgate deixar claro também QUANDO é o evento, não só onde. */
+function eventoResumido(){
+  let v = nomeEvento(); if(!v) return '';
+  const PREFIXO = 'Imersão FL 100K ';
+  if(v.startsWith(PREFIXO)) v = v.slice(PREFIXO.length);
+  return v.trim();
+}
 function tituloResgate(){
   const cidade = cidadeEvento();
   if(!cidade || /^em\s/i.test(cidade)) return 'Parabéns! Seu ingresso foi resgatado.';
-  return 'Parabéns! Seu ingresso para '+cidade+' foi resgatado.';
+  return 'Parabéns! Seu ingresso para <em class="dest">'+eventoResumido()+'</em> foi resgatado.';
 }
 /* Quem responde a pergunta do convidado vai levar alguém, a não ser que
    diga explicitamente o contrário. Enquanto não responder, ainda não dá
@@ -1389,7 +1397,7 @@ function perguntaAcompanhante(s){
 
   const err = el('p','erro'); app.appendChild(err);
   const ultima = pos === total;
-  const rotulo = ultima ? 'Finalizar jornada' : 'Continuar';
+  const rotulo = ultima ? 'Resgatar ingresso' : 'Continuar';
   const btn = acoes(rotulo, ()=>{
     const vNome = nome.value.trim(), vCpf = cpf.value.trim(),
           vEmail = mail.value.trim().toLowerCase(), vWhats = whats.value.trim();
