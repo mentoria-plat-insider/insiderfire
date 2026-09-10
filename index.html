@@ -233,7 +233,7 @@
   .opt.bloqueada:hover{transform:none;box-shadow:none;border-color:var(--line-soft)}
   .opt span.txt{font-size:15.5px;line-height:1.4}
   .opt-prefixo{color:var(--ink-soft);font-weight:400}
-  .opt-cidade{color:var(--green);font-weight:700}
+  .opt-cidade{font-weight:700;border-radius:7px;padding:1px 9px;display:inline-block}
   .opt-traco{color:var(--gray);font-weight:400}
   .opt-data{color:var(--stamp-amber);font-weight:600}
   .opt span.txt strong{color:var(--ink);font-weight:700}
@@ -610,6 +610,9 @@ const capituloDe = id => (CAPITULOS.find(c=>c.ids.includes(id))||{}).nome || '';
 /* ---------------- estado ---------------- */
 const A = {nome:'',email:'',cpf:'',whats:'',respostas:{}};
 let i = 0, dir = 1, savedOk = false, jaEnviado = false, transitando = false;
+/* Enquanto true, uma troca de tela veio do botão voltar do navegador (popstate)
+   — não deve empilhar um novo item no histórico, só refletir o que já mudou lá. */
+let sincronizandoHistorico = false;
 let app, barra, etapa;
 const marcosVistos = new Set();
 
@@ -917,18 +920,32 @@ function realce(txt, palavras){
 /* Opções de evento: destaca cidade e data, mantendo o valor puro (o texto
    completo continua sendo o que vai para a planilha, isto é só exibição). */
 const PREFIXO_EVENTO = 'Imersão FL 100K ';
+/* Uma cor própria por cidade — em forma de selo, não só texto colorido —
+   para bater o olho e diferenciar rápido as opções numa lista com 10
+   linhas parecidas. Tons pensados para não brigar com o dourado do
+   ingresso nem com o verde de "escolhido" já usados no resto do app. */
+const CORES_CIDADE = {
+  'Goiânia':            {bg:'#E4EFE8', fg:'#2F6B4F'},
+  'Uberlândia':         {bg:'#E3EBF5', fg:'#2B5C8A'},
+  'Belo Horizonte':     {bg:'#EFE6F7', fg:'#6B3FA0'},
+  'Porto Alegre':       {bg:'#E1F1EF', fg:'#1E7A72'},
+  'João Pessoa':        {bg:'#FBE8DE', fg:'#C2542F'},
+  'São Luís':           {bg:'#F6E4EE', fg:'#A83E6C'},
+  'Brasília':           {bg:'#E5E8F5', fg:'#35468C'},
+  'Balneário Camboriú': {bg:'#DFF0F5', fg:'#1D7A99'},
+  'Campinas':           {bg:'#F3EFD9', fg:'#8A7B1E'},
+};
+const COR_CIDADE_PADRAO = {bg:'#EFEDE7', fg:'#8B8578'};
 function formatarOpcaoRica(v){
   if(!v.startsWith(PREFIXO_EVENTO)) return v;
   const resto = v.slice(PREFIXO_EVENTO.length);
   const idx = resto.indexOf('—');
   if(idx<0) return '<span class="opt-prefixo">'+PREFIXO_EVENTO+'</span><strong>'+resto+'</strong>';
-  /* Cidade em verde, data em dourado: mesma leitura rápida do resto do app
-     (verde = escolha, dourado = ingresso), só que aqui separa os dois dados
-     que mais importam na hora de escolher. */
   const cidade = resto.slice(0, idx).trim();
   const data = resto.slice(idx+1).trim();
+  const cor = CORES_CIDADE[cidade] || COR_CIDADE_PADRAO;
   return '<span class="opt-prefixo">'+PREFIXO_EVENTO+'</span>'
-    +'<span class="opt-cidade">'+cidade+'</span>'
+    +'<span class="opt-cidade" style="background:'+cor.bg+';color:'+cor.fg+'">'+cidade+'</span>'
     +' <span class="opt-traco">—</span> '
     +'<span class="opt-data">'+data+'</span>';
 }
@@ -1061,9 +1078,9 @@ function retomar(){
   const rascunho = lerRascunho();
   const n = el('div','acoes');
   const b = el('button','btn verde','Continuar de onde parei'+seta);
-  b.onclick = ()=>{ i = rascunho.i; dir = 1; render(); };
+  b.onclick = ()=>{ i = rascunho.i; dir = 1; render(); sincronizarHistorico(true); };
   const r = el('button','voltar','Recomeçar do início');
-  r.onclick = ()=>{ limparRascunho(); A.respostas = {}; i = 0; dir = 1; render(); };
+  r.onclick = ()=>{ limparRascunho(); A.respostas = {}; i = 0; dir = 1; render(); sincronizarHistorico(false); };
   n.appendChild(b); n.appendChild(r); app.appendChild(n);
 }
 
@@ -1433,6 +1450,7 @@ function ir(d){
     if(s.kind==='final' && !jaEnviado){ jaEnviado = true; submeter(); }
     try{ render(); }catch(e){ mostrarFalha(e); }
     salvarRascunho();
+    sincronizarHistorico(d>0);
     window.scrollTo({top:0,behavior:'smooth'});
     app.focus({preventScroll:true});
   }, 165);
@@ -1448,10 +1466,31 @@ function saltarPara(idxTela, direcao){
     dir = direcao; i = idxTela;
     try{ render(); }catch(e){ mostrarFalha(e); }
     salvarRascunho();
+    sincronizarHistorico(direcao>0);
     window.scrollTo({top:0,behavior:'smooth'});
     app.focus({preventScroll:true});
   }, 165);
 }
+
+/* Empilha um passo no histórico do navegador a cada avanço, e substitui o
+   topo a cada volta — assim o botão/gesto nativo de voltar do celular volta
+   um passo na jornada em vez de sair do site inteiro. Quando a troca já veio
+   de um popstate (ver abaixo), não mexe no histórico de novo. */
+function sincronizarHistorico(avancou){
+  if(sincronizandoHistorico) return;
+  try{
+    if(avancou) history.pushState({i}, '', location.href);
+    else history.replaceState({i}, '', location.href);
+  }catch(e){}
+}
+window.addEventListener('popstate', ev=>{
+  if(!app || transitando) return;
+  const alvo = (ev.state && typeof ev.state.i === 'number') ? ev.state.i : 0;
+  if(alvo === i) return;
+  sincronizandoHistorico = true;
+  saltarPara(alvo, alvo < i ? -1 : 1);
+  setTimeout(()=>{ sincronizandoHistorico = false; }, 220);
+});
 
 async function submeter(){
   savedOk = await enviarFire('Completo');
@@ -1521,6 +1560,7 @@ function iniciar(){
   trilha = document.getElementById('trilha');
   if(!app) return;
   montarTrilha();
+  try{ history.replaceState({i}, '', location.href); }catch(e){}
 
   // Retoma o rascunho apenas se a tela ainda existir nesta versão do formulário.
   const d = lerRascunho();
